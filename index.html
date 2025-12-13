@@ -60,20 +60,27 @@
       50%{ transform: translateY(-6px) }
     }
 
-      .mouth{
+mouth{
   position:absolute;
   left:50%;
   top:74%;
   transform: translate(-50%,-50%);
-  width: 12%;
-  height: 5.5%;
-  border-radius: 999px;
-  background: rgba(10,10,10,.35);
-  border: 1px solid rgba(255,255,255,.08);
+  width:14%;
+  height:6%;
+  border-radius:999px;
+
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.10);
   box-shadow: 0 10px 30px rgba(0,0,0,.35);
   backdrop-filter: blur(2px);
   overflow:hidden;
+
+  z-index: 999;        /* مهم */
+  pointer-events:none; /* مهم */
+
+  outline: 2px solid red; /* مؤقت */
 }
+
 
     .mouthInner{
       position:absolute; inset:12%;
@@ -94,15 +101,17 @@
     }
 
     .blink{
-      position:absolute;
-      left:50%; top:40%;
-      transform:translate(-50%,-50%);
-      width: 26%;
-      height: 10%;
-      border-radius: 999px;
-      background: rgba(0,0,0,.0);
-      pointer-events:none;
-    }
+  position:absolute;
+  left:50%; top:40%;
+  transform:translate(-50%,-50%);
+  width:26%;
+  height:10%;
+  border-radius:999px;
+  background: rgba(0,0,0,0);
+  pointer-events:none;
+  display:none !important;
+}
+
     .blink::before, .blink::after{
       content:"";
       position:absolute;
@@ -661,9 +670,21 @@ window.speechSynthesis?.getVoices?.();
 window.speechSynthesis?.addEventListener?.("voiceschanged", ()=>{});
 
 addMsg("bot", "هلا! أنا المعلّم الذكي. اكتب سؤالك أو اضغط 🎤. (أول مرة: انقر داخل الصفحة ثم أرسل سؤال)");
+  addMsg("bot", "هلا! أنا المعلّم الذكي. اكتب سؤالك أو اضغط 🎤.");
+
+// ================= TEST MOUTH ONLY =================
+let __testT = 0;
+setInterval(() => {
+  __testT += 1;
+  const level = (Math.sin(__testT / 3) + 1) / 2;
+  setMouth(level);
+}, 80);
+// ==================================================
+
 </script>
 </body>
-</html>
+</html>//
+
 
 
 
