@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>المعلّم الذكي - أفاتار متحرك</title>
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel: rgba(15, 23, 42, .72);
+      --border: rgba(255,255,255,.10);
+      --text:#f8fafc;
+      --muted:#cbd5e1;
+      --shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      background: radial-gradient(1200px 900px at 70% 10%, #1f2a44, var(--bg));
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      overflow:hidden;
+    }
+
+    .stage{
+      position:fixed; inset:0;
+      display:grid;
+      grid-template-columns: 1fr min(420px, 92vw);
+      gap:18px;
+      padding:18px;
+    }
+    @media (max-width: 980px){
+      .stage{ grid-template-columns: 1fr; grid-template-rows: 1fr auto; }
+    }
+
+    .avatarWrap{
+      position:relative;
+      border:1px solid var(--border);
+      border-radius:22px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      background:#071022;
+      min-height: 60vh;
+    }
+    .avatarImg{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      filter: contrast(1.05) saturate(1.05);
+      transform: scale(1.02);
+    }
+    .idleFloat{
+      position:absolute; inset:0;
+      animation: floaty 6s ease-in-out infinite;
+      transform-origin: 50% 50%;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0px) }
+      50%{ transform: translateY(-6px) }
+    }
+
+    .mouth{
+      position:absolute;
+      left:50%;
+      top:68%;
+      transform: translate(-50%,-50%);
+      width: 14%;
+      height: 7%;
+      border-radius: 999px;
+      background: rgba(10,10,10,.35);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      backdrop-filter: blur(2px);
+      overflow:hidden;
+    }
+    .mouthInner{
+      position:absolute; inset:12%;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,.35));
+      transform-origin: 50% 50%;
+      transform: scaleY(0.15);
+      transition: transform 80ms linear;
+    }
+    .mouthGlow{
+      position:absolute; left:12%; right:12%; top:14%;
+      height:22%;
+      border-radius:999px;
+      background: rgba(255,255,255,.10);
+      opacity:.0;
+      transition: opacity 120ms linear;
+      pointer-events:none;
+    }
+
+    .blink{
+      position:absolute;
+      left:50%; top:40%;
+      transform:translate(-50%,-50%);
+      width: 26%;
+      height: 10%;
+      border-radius: 999px;
+      background: rgba(0,0,0,.0);
+      pointer-events:none;
+    }
+    .blink::before, .blink::after{
+      content:"";
+      position:absolute;
+      top:0; width:44%; height:100%;
+      border-radius:999px;
+      background: rgba(0,0,0,.0);
+      left:0;
+    }
+    .blink::after{ left:auto; right:0; }
+    .blinkOn::before, .blinkOn::after{
+      background: rgba(0,0,0,.55);
+      height:18%;
+      top:40%;
+      transition: all 90ms ease;
+    }
+
+    .panel{
+      border:1px solid var(--border);
+      border-radius:22px;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      display:flex;
+      flex-direction:column;
+      min-height: 60vh;
+    }
+    .panelHeader{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .title{
+      font-weight:800;
+      display:flex; align-items:center; gap:10px;
+    }
+    .badge{
+      font-size:12px; color:#111827;
+      background: linear-gradient(90deg,#fde68a,#fb923c);
+      padding:4px 10px; border-radius:999px; font-weight:800;
+    }
+    .small{ font-size:12px; color:var(--muted); }
+
+    .chat{
+      padding:12px 12px 0;
+      overflow:auto;
+      flex:1;
+    }
+    .msg{
+      margin:10px 0;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .bubble{
+      max-width: 92%;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      line-height:1.55;
+      white-space:pre-wrap;
+    }
+    .me .bubble{
+      background: rgba(251,146,60,.14);
+      border-color: rgba(251,146,60,.28);
+      margin-right:auto;
+    }
+    .bot .bubble{
+      background: rgba(59,130,246,.10);
+      border-color: rgba(59,130,246,.22);
+      margin-left:auto;
+    }
+
+    .controls{
+      border-top:1px solid var(--border);
+      padding:12px;
+      display:grid;
+      grid-template-columns: 1fr auto auto;
+      gap:10px;
+    }
+    textarea{
+      resize:none;
+      width:100%;
+      min-height:48px;
+      max-height:140px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(2,6,23,.35);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    button{
+      border:1px solid var(--border);
+      background: rgba(2,6,23,.35);
+      color:var(--text);
+      border-radius:14px;
+      padding:10px 12px;
+      font-weight:800;
+      cursor:pointer;
+      transition: transform .06s ease, background .2s ease;
+      user-select:none;
+      white-space:nowrap;
+    }
+    button:hover{ background: rgba(2,6,23,.55); }
+    button:active{ transform: translateY(1px); }
+
+    .primary{
+      background: linear-gradient(90deg, rgba(251,146,60,.95), rgba(245,158,11,.95));
+      color:#111827;
+      border-color: rgba(251,146,60,.45);
+    }
+
+    .row2{
+      padding:10px 12px 14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .tog{
+      display:flex; gap:8px; align-items:center;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      border-radius:999px;
+      background: rgba(2,6,23,.30);
+      font-size:12px;
+      color:var(--muted);
+    }
+    input[type="checkbox"]{ transform: scale(1.1); }
+
+    .toast{
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      background: rgba(2,6,23,.75);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      max-width: min(560px, 92vw);
+      display:none;
+      z-index: 9999;
+      line-height: 1.6;
+      font-size: 13px;
+    }
+    .toast.show{ display:block; }
+  </style>
+</head>
+
+<body>
+  <div class="stage">
+    <section class="avatarWrap" aria-label="Avatar">
+      <div class="idleFloat">
+        <img id="avatarImg" class="avatarImg" alt="Avatar" />
+      </div>
+
+      <div class="blink" id="blink"></div>
+
+      <div class="mouth" id="mouth">
+        <div class="mouthGlow" id="mouthGlow"></div>
+        <div class="mouthInner" id="mouthInner"></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panelHeader">
+        <div class="title">
+          <span>المعلّم الذكي</span>
+          <span class="badge">Avatar</span>
+        </div>
+        <div class="small" id="status">جاهز</div>
+      </div>
+
+      <div class="chat" id="chat"></div>
+
+      <div class="controls">
+        <textarea id="q" placeholder="اكتب سؤالك هنا... (أو اضغط 🎤 وتكلم)"></textarea>
+        <button id="micBtn" title="تسجيل صوت">🎤</button>
+        <button class="primary" id="sendBtn">إرسال</button>
+      </div>
+
+      <div class="row2">
+        <div class="tog">
+          <input id="autoSpeak" type="checkbox" checked />
+          <label for="autoSpeak">نطق الرد</label>
+        </div>
+        <div class="tog">
+          <input id="proLip" type="checkbox" checked />
+          <label for="proLip">Lip-Sync احترافي</label>
+        </div>
+        <div class="small">إذا الصوت ما اشتغل: اضغط داخل الصفحة ثم اضغط (إرسال) مرة ثانية.</div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+/** ===========================
+ *  إعدادات
+ * =========================== */
+
+// ✅ صورة الأفاتار (Google Drive thumbnail)
+const AVATAR_IMG = "https://drive.google.com/thumbnail?id=1PPnEInmBsKJvxHZC6sqajl6zANW201Tz&sz=w1920";
+
+// ✅ ضع رابط Google Apps Script Web App (/exec) هنا
+// مثال: https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxx/exec
+const BACKEND_ENDPOINT = "PUT_YOUR_APPS_SCRIPT_WEBAPP_EXEC_URL_HERE";
+
+// صوت عربي من المتصفح (fallback)
+const PREFERRED_VOICE_KEYWORDS = ["ar", "Arabic", "Saudi", "KSA"];
+
+/** ===========================
+ *  عناصر
+ * =========================== */
+const avatarImg = document.getElementById("avatarImg");
+const chatEl = document.getElementById("chat");
+const qEl = document.getElementById("q");
+const sendBtn = document.getElementById("sendBtn");
+const micBtn = document.getElementById("micBtn");
+const statusEl = document.getElementById("status");
+const mouthInner = document.getElementById("mouthInner");
+const mouthGlow = document.getElementById("mouthGlow");
+const blinkEl = document.getElementById("blink");
+const autoSpeakEl = document.getElementById("autoSpeak");
+const proLipEl = document.getElementById("proLip");
+const toastEl = document.getElementById("toast");
+
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  setTimeout(()=> toastEl.classList.remove("show"), 4500);
+}
+
+// تحميل الصورة + fallback لو فشلت
+avatarImg.src = AVATAR_IMG;
+avatarImg.onerror = () => {
+  console.log("Avatar failed:", AVATAR_IMG);
+  avatarImg.src = "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&w=1920&q=80";
+};
+
+/** ===========================
+ *  رسائل
+ * =========================== */
+function addMsg(role, text){
+  const wrap = document.createElement("div");
+  wrap.className = `msg ${role}`;
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+  wrap.appendChild(bubble);
+  chatEl.appendChild(wrap);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+/** ===========================
+ *  Blink
+ * =========================== */
+setInterval(() => {
+  if (Math.random() < 0.28){
+    blinkEl.classList.add("blinkOn");
+    setTimeout(()=> blinkEl.classList.remove("blinkOn"), 130);
+  }
+}, 900);
+
+/** ===========================
+ *  Mouth
+ * =========================== */
+function setMouth(openLevel){
+  const y = 0.15 + openLevel * 1.0;
+  mouthInner.style.transform = `scaleY(${y})`;
+  mouthGlow.style.opacity = String(Math.min(0.35, openLevel * 0.45));
+}
+
+/** ===========================
+ *  Fake Lip (fallback)
+ * =========================== */
+let fakeLipTimer = null;
+let rafId = null;
+
+function startFakeLip(){
+  stopLip();
+  let t = 0;
+  fakeLipTimer = setInterval(() => {
+    t += 1;
+    const wave = (Math.sin(t/2.1) + 1) / 2;
+    const jitter = (Math.random()*0.25);
+    const level = Math.min(1, 0.15 + wave*0.75 + jitter);
+    setMouth(level);
+  }, 60);
+}
+
+function stopLip(){
+  if(fakeLipTimer){ clearInterval(fakeLipTimer); fakeLipTimer = null; }
+  if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+  setMouth(0);
+}
+
+/** ===========================
+ *  Pro Lip Sync (REAL audio)
+ * =========================== */
+let audioCtx = null, analyser = null, dataArr = null;
+let lastAudioUrl = null;
+
+async function playAudioWithLipSync(audioUrl){
+  stopLip();
+  statusEl.textContent = "تشغيل صوت + Lip-Sync...";
+
+  if(lastAudioUrl && lastAudioUrl.startsWith("blob:")){
+    try{ URL.revokeObjectURL(lastAudioUrl); }catch(e){}
+  }
+  lastAudioUrl = audioUrl;
+
+  const audio = new Audio(audioUrl);
+  audio.preload = "auto";
+
+  audio.addEventListener("ended", () => {
+    stopLip();
+    statusEl.textContent = "جاهز";
+  });
+
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === "suspended"){
+    try{ await audioCtx.resume(); }catch(e){}
+  }
+
+  const src = audioCtx.createMediaElementSource(audio);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 1024;
+  dataArr = new Uint8Array(analyser.frequencyBinCount);
+
+  src.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  const loop = () => {
+    if(!analyser) return;
+    analyser.getByteTimeDomainData(dataArr);
+
+    let sum = 0;
+    for(let i=0;i<dataArr.length;i++){
+      const v = (dataArr[i] - 128) / 128;
+      sum += Math.abs(v);
+    }
+    const avg = sum / dataArr.length;
+    const level = Math.min(1, Math.max(0, (avg - 0.02) * 3.2));
+    setMouth(level);
+
+    rafId = requestAnimationFrame(loop);
+  };
+
+  try{
+    await audio.play();
+    loop();
+  }catch(e){
+    stopLip();
+    statusEl.textContent = "اضغط مرة لتفعيل الصوت";
+    toast("المتصفح منع تشغيل الصوت تلقائيًا. انقر داخل الصفحة ثم أعد الإرسال.");
+    throw e;
+  }
+}
+
+/** ===========================
+ *  fallback: speechSynthesis
+ * =========================== */
+function pickArabicVoice(){
+  const voices = speechSynthesis.getVoices() || [];
+  const scored = voices.map(v => {
+    const name = (v.name || "") + " " + (v.lang || "");
+    let score = 0;
+    if((v.lang||"").toLowerCase().startsWith("ar")) score += 5;
+    for(const k of PREFERRED_VOICE_KEYWORDS){
+      if(name.toLowerCase().includes(k.toLowerCase())) score += 1;
+    }
+    return {v, score};
+  }).sort((a,b)=> b.score - a.score);
+  return scored[0]?.v || voices[0] || null;
+}
+
+function speakText(text){
+  if(!("speechSynthesis" in window)) return;
+
+  speechSynthesis.cancel();
+
+  const ut = new SpeechSynthesisUtterance(text);
+  const voice = pickArabicVoice();
+  if(voice) ut.voice = voice;
+  ut.rate = 0.96;
+  ut.pitch = 1.0;
+
+  statusEl.textContent = "يتكلم...";
+  startFakeLip();
+
+  ut.onend = () => { statusEl.textContent = "جاهز"; stopLip(); };
+  ut.onerror = () => { statusEl.textContent = "مشكلة بالصوت"; stopLip(); };
+
+  speechSynthesis.speak(ut);
+}
+
+/** ===========================
+ *  Mic Recognition
+ * =========================== */
+let recognizing = false;
+let rec = null;
+
+function initRec(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+
+  const r = new SR();
+  r.lang = "ar-SA";
+  r.interimResults = true;
+  r.continuous = false;
+
+  r.onstart = () => {
+    recognizing = true;
+    micBtn.textContent = "⏹";
+    statusEl.textContent = "يستمع...";
+  };
+  r.onend = () => {
+    recognizing = false;
+    micBtn.textContent = "🎤";
+    statusEl.textContent = "جاهز";
+  };
+  r.onerror = () => {
+    recognizing = false;
+    micBtn.textContent = "🎤";
+    statusEl.textContent = "تعذر الاستماع";
+  };
+  r.onresult = (e) => {
+    let finalText = "";
+    let interim = "";
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      const t = e.results[i][0].transcript;
+      if(e.results[i].isFinal) finalText += t;
+      else interim += t;
+    }
+    qEl.value = (finalText || interim).trim();
+  };
+  return r;
+}
+rec = initRec();
+
+/** ===========================
+ *  Base64 -> Blob URL
+ * =========================== */
+function base64ToBlobUrl(base64, mime){
+  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: mime || "audio/mpeg" });
+  return URL.createObjectURL(blob);
+}
+
+/** ===========================
+ *  getBotReply
+ * =========================== */
+async function getBotReply(question){
+  const q = String(question || "").trim();
+  if(!q) throw new Error("empty_question");
+
+  const base = (BACKEND_ENDPOINT || "").trim();
+  if(!base || base.includes("PUT_YOUR_APPS_SCRIPT_WEBAPP_EXEC_URL_HERE")){
+    throw new Error("BACKEND_ENDPOINT not set. Put your Apps Script /exec URL.");
+  }
+
+  const fullUrl = base + (base.includes("?") ? "&" : "?") + "q=" + encodeURIComponent(q);
+  console.log("Calling:", fullUrl);
+
+  const res = await fetch(fullUrl, { method:"GET" });
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+  const txt = await res.text();
+
+  if(ct.includes("text/html") || txt.trim().startsWith("<!doctype") || txt.trim().startsWith("<html")){
+    throw new Error("Backend returned HTML not JSON. Check Apps Script Web App /exec and doGet logic.");
+  }
+
+  let out;
+  try { out = JSON.parse(txt); }
+  catch(e){ throw new Error("Invalid JSON from backend: " + txt.slice(0,120)); }
+
+  if(out && out.ok === false){
+    throw new Error(out.error || "Backend error");
+  }
+
+  let audioUrl = "";
+  if(out && out.audioBase64){
+    audioUrl = base64ToBlobUrl(out.audioBase64, out.audioMime);
+  }
+
+  return { text: out.text, audioUrl };
+}
+
+/** ===========================
+ *  Send
+ * =========================== */
+async function handleSend(){
+  const question = qEl.value.trim();
+  if(!question) return;
+
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") await audioCtx.resume();
+  }catch(e){}
+
+  addMsg("me", question);
+  qEl.value = "";
+  statusEl.textContent = "يفكر...";
+
+  try{
+    const out = await getBotReply(question);
+    const text = out?.text ? String(out.text) : "ما عندي رد الآن.";
+    addMsg("bot", text);
+
+    if(autoSpeakEl.checked){
+      if(proLipEl.checked && out.audioUrl){
+        await playAudioWithLipSync(out.audioUrl);
+      } else {
+        speakText(text);
+      }
+    } else {
+      statusEl.textContent = "جاهز";
+    }
+  }catch(err){
+    console.error(err);
+    addMsg("bot", "صار خطأ: " + (err?.message || err));
+    toast("افتح Console (F12) لتفاصيل أكثر.");
+    statusEl.textContent = "جاهز";
+    stopLip();
+  }
+}
+
+sendBtn.addEventListener("click", handleSend);
+qEl.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    handleSend();
+  }
+});
+
+micBtn.addEventListener("click", async ()=>{
+  if(!rec){
+    alert("المتصفح لا يدعم التعرف على الصوت. جرّب Chrome/Edge.");
+    return;
+  }
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") await audioCtx.resume();
+  }catch(e){}
+  if(recognizing) rec.stop(); else rec.start();
+});
+
+// تهيئة أصوات المتصفح
+window.speechSynthesis?.getVoices?.();
+window.speechSynthesis?.addEventListener?.("voiceschanged", ()=>{});
+
+addMsg("bot", "هلا! أنا المعلّم الذكي. اكتب سؤالك أو اضغط 🎤. (أول مرة: انقر داخل الصفحة ثم أرسل سؤال)");
+</script>
+</body>
+</html>
