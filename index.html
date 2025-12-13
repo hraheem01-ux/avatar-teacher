@@ -394,7 +394,7 @@ function startFakeLip(){
     t += 1;
     const wave = (Math.sin(t/2.1) + 1) / 2;
     const jitter = (Math.random()*0.25);
-    const level = Math.min(1, 0.15 + wave*0.75 + jitter);
+    const level = Math.min(1, 0.25 + wave*0.95 + jitter*0.35);
     setMouth(level);
   }, 60);
 }
@@ -664,5 +664,6 @@ addMsg("bot", "هلا! أنا المعلّم الذكي. اكتب سؤالك أ�
 </script>
 </body>
 </html>
+
 
 
