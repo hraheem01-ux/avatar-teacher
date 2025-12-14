@@ -4,432 +4,189 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>المعلم الذكي</title>
- 
+
   <style>
-   :root{
-  --bg:#020617;
-  --glass:rgba(2,6,23,.65);
-  --line:rgba(148,163,184,.25);
-  --txt:#f8fafc;
-  --muted:#cbd5e1;
-  --green:#22c55e;
-  --blue:#0ea5e9;
-  --red:#ef4444;
-}
+    :root{
+      --bg:#020617;
+      --glass:rgba(2,6,23,.72);
+      --line:rgba(148,163,184,.25);
+      --txt:#f8fafc;
+      --muted:#cbd5e1;
+      --green:#22c55e;
+      --blue:#0ea5e9;
+      --red:#ef4444;
+    }
+    *{box-sizing:border-box}
 
-*{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--txt);
+      font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+      height:100vh;
+      overflow:hidden;
+    }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--txt);
-  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-  height:100vh;
-  overflow:hidden;
-}
-
-/* المسرح */
-.stage{
-  position:fixed;
-  inset:0;
-  background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%);
-}
-
-/* الفيديو */
-video#avatarVideo{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-/* صورة احتياطية */
-img#avatarPoster{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transform:scale(1.1);
-}
-
-/* العنوان أعلى الصفحة */
-.brand{
-  position:absolute;
-  top:16px;
-  left:50%;
-  transform:translateX(-50%);
-  width:min(900px,94vw);
-  background:var(--glass);
-  border:1px solid var(--line);
-  backdrop-filter:blur(10px);
-  border-radius:18px;
-  padding:14px;
-  text-align:center;
-  z-index:5;
-}
-
-.brand h1{margin:0;font-size:26px}
-.brand p{margin-top:6px;color:var(--muted);font-size:13px}
-
-/* ❌ إلغاء النص العلوي */
-#subs{display:none}
-
-/* واجهة التحكم – مثبتة أسفل */
-.ui{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:0;
-  padding:16px;
-  z-index:10;
-}
-
-/* الكارد السفلي (منطقة الذقن فقط) */
-.panel{
-  width:min(1100px,96vw);
-  margin:0 auto;
-  background:var(--glass);
-  border:1px solid var(--line);
-  backdrop-filter:blur(12px);
-  border-radius:22px 22px 0 0;
-  padding:14px;
-}
-
-/* صندوق المحادثة – ارتفاع محدود */
-.chat{
-  height:140px;              /* ← هنا التحكم */
-  max-height:140px;
-  overflow-y:auto;
-  border-radius:14px;
-  border:1px solid rgba(148,163,184,.18);
-  padding:10px;
-  background:rgba(2,6,23,.35);
-  font-size:14px;
-  line-height:1.6;
-}
-
-/* الأزرار */
-.row{
-  display:flex;
-  gap:12px;
-  margin-top:10px;
-}
-
-button{
-  border:0;
-  cursor:pointer;
-  padding:14px;
-  border-radius:999px;
-  font-size:15px;
-  font-weight:800;
-}
-
-#micBtn{background:var(--green);color:#052e16}
-#micBtn.recording{background:var(--red);color:#fff}
-#askBtn{background:var(--blue);color:#e0f2fe}
-
-/* صف الإعدادات */
-.smallrow{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-  align-items:center;
-}
-
-select{
-  flex:1;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid rgba(148,163,184,.25);
-  background:rgba(2,6,23,.55);
-  color:var(--txt);
-  font-size:13px;
-}
-
-.toggle{
-  background:rgba(15,23,42,.75);
-  color:var(--txt);
-  border:1px solid rgba(148,163,184,.25);
-  font-weight:800;
-  padding:10px 14px;
-}
-
-.status{
-  margin-top:6px;
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-}
-
-
-/* الخلفية (الصورة) */
-img#avatarPoster{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transform:scale(1.08);
-  filter:saturate(1.05) contrast(1.05);
-  z-index:1;
-}
-
-/* الفيديو فوق الصورة — لكن ما يلمس لا رؤية ولا ضغط */
-video#avatarVideo{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  background:transparent;
-  z-index:2;
-  opacity:0;               /* مخفي افتراضيًا */
-  pointer-events:none;     /* مهم: ما يمنع ضغط الأزرار */
-  transition:opacity .25s ease;
-}
-/* يظهر فقط عندما يبدأ التشغيل (وجود src + فيديو شغال عادة) */
-video#avatarVideo[src]{ opacity:1; }
-
-/* عنوان أعلى */
-.brand{
-  position:absolute;
-  top:18px;
-  left:18px;
-  right:18px;
-  width:min(1100px,96vw);
-  margin:0 auto;
-  background:var(--glass);
-  border:1px solid var(--line);
-  backdrop-filter:blur(10px);
-  border-radius:18px;
-  padding:14px 16px;
-  text-align:center;
-  z-index:5;
-}
-.brand h1{margin:0;font-size:28px}
-.brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
-
-/* UI أسفل الشاشة (بدون أي overlay يمنع الضغط) */
-.ui{
-  position:absolute;
-  left:0; right:0; bottom:0;
-  padding:16px;
-  z-index:6;
-}
-
-/* شريط الحالة */
-.subs{
-  width:100%;
-  max-width:1100px;
-  margin:0 auto 10px auto;
-  padding:10px 14px;
-  border-radius:14px;
-  background:rgba(2,6,23,.45);
-  border:1px solid rgba(148,163,184,.18);
-  text-align:center;
-  min-height:46px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* صندوق التحكم */
-.panel{
-  width:100%;
-  max-width:1100px;
-  margin:0 auto;
-  background:var(--glass);
-  border:1px solid var(--line);
-  backdrop-filter:blur(10px);
-  border-radius:18px;
-  padding:14px;
-}
-
-/* الدردشة أصغر وواضحة */
-.chat{
-  height:140px;            /* صغّرناه */
-  overflow:auto;
-  border-radius:14px;
-  border:1px solid rgba(148,163,184,.18);
-  padding:12px;
-  background:rgba(2,6,23,.35);
-  line-height:1.75;
-  font-size:15px;
-}
-
-/* أزرار */
-.row{
-  display:flex;
-  gap:10px;
-  margin-top:12px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-button{
-  border:0;
-  cursor:pointer;
-  padding:14px 16px;
-  border-radius:999px;
-  font-size:16px;
-  font-weight:800;
-  flex:1;
-  min-width:220px;
-}
-#micBtn{background:var(--green);color:#052e16}
-#micBtn.recording{background:var(--red);color:#fff}
-#askBtn{background:var(--blue);color:#e0f2fe}
-
-.smallrow{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:10px;
-  align-items:center;
-}
-select{
-  flex:1;
-  min-width:260px;
-  padding:10px 12px;
-  border-radius:999px;
-  border:1px solid rgba(148,163,184,.25);
-  background:rgba(2,6,23,.55);
-  color:var(--txt);
-  font-size:13px;
-}
-.toggle{
-  flex:0;
-  min-width:220px;
-  background:rgba(15,23,42,.75);
-  color:var(--txt);
-  border:1px solid rgba(148,163,184,.25);
-  font-weight:800;
-}
-.status{
-  margin-top:10px;
-  text-align:center;
-  color:var(--muted);
-  font-size:13px;
-}
-
-@media (max-width:520px){
-  .ui{padding:12px}
-  .chat{height:130px}
-  button{min-width:160px}
-  select{min-width:200px}
-  .brand h1{font-size:22px}
-}
+    /* المسرح */
+    .stage{
+      position:fixed;
+      inset:0;
+      background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%);
+    }
 
     /* صورة الخلفية (ثابتة دائماً) */
     img#avatarPoster{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; background:#020617;
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      background:#020617;
       filter:saturate(1.05) contrast(1.05);
-      transform:scale(1.10);
+      transform:scale(1.08);
       z-index:1;
     }
 
-    /* الفيديو فوق الصورة لكن "مخفي" حتى يجيه src */
+    /* فيديو D-ID فوق الصورة (ولا يمنع الضغط) */
     video#avatarVideo{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; background:transparent;
-      opacity:0;               /* مهم: لا يغطي الصورة وهو فاضي */
-      pointer-events:none;
-      transition:opacity .25s ease;
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      background:transparent;
       z-index:2;
+
+      opacity:0;               /* مخفي افتراضيًا */
+      pointer-events:none;     /* مهم: لا يمنع ضغط الأزرار */
+      transition:opacity .25s ease;
     }
-    /* إذا صار له src يظهر */
     video#avatarVideo[src]{ opacity:1; }
 
-    /* ===== UI (أسفل الشاشة بعرض كامل) ===== */
-    .ui{
-      position:absolute; inset:0;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      padding:18px;
-      gap:12px;
-      z-index:3;
-      pointer-events:none;
-    }
-
+    /* العنوان أعلى */
     .brand{
-      position:absolute; top:18px; right:18px; left:18px;
-      width: min(1100px, 96vw);
+      position:absolute;
+      top:18px; right:18px; left:18px;
+      width:min(1100px,96vw);
       margin:0 auto;
-      background:var(--glass);
-      border:1px solid var(--line);
+      background:rgba(2,6,23,.45);
+      border:1px solid rgba(148,163,184,.20);
       backdrop-filter:blur(10px);
       border-radius:18px;
       padding:14px 16px;
       text-align:center;
+      z-index:10;
       pointer-events:auto;
     }
     .brand h1{margin:0;font-size:28px}
     .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
 
-    /* سطر الحالة فوق البانل مباشرة (في الأسفل) */
-    .subs{
-      width:100%;
-      max-width:1100px;
-      margin:0 auto;
-      padding:10px 14px;
-      border-radius:14px;
-      background:rgba(2,6,23,.45);
-      border:1px solid rgba(148,163,184,.18);
-      text-align:center;
-      min-height:46px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      pointer-events:auto;
+    /* ✅ إلغاء شريط النص العلوي نهائياً */
+    #subs, .subs{ display:none !important; }
+
+    /* واجهة أسفل الشاشة */
+    .ui{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      padding:0;
+      z-index:20;
+
+      /* نخلي الضغط فقط داخل الكارد */
+      pointer-events:none;
     }
 
-    /* البانل أسفل الشاشة بعرض كامل */
+    /* ✅ الكارد السفلي بعرض الشاشة كامل */
     .panel{
-      width:100%;
-      max-width:1100px;     /* لو تبيه 100% بالكامل احذف السطر هذا */
-      margin:0 auto;
+      width:100vw;
+      max-width:100vw;
+      margin:0;
       background:var(--glass);
-      border:1px solid var(--line);
-      backdrop-filter:blur(10px);
-      border-radius:18px;
-      padding:14px;
-      pointer-events:auto;
+      border-top:1px solid rgba(148,163,184,.25);
+      border-left:none; border-right:none; border-bottom:none;
+      backdrop-filter:blur(14px);
+      border-radius:24px 24px 0 0;
+      padding:14px 18px 16px;
+
+      pointer-events:auto; /* يرجع الضغط داخل الكارد */
     }
 
-    /* الشات أصغر حتى ما يغطي الفم */
+    /* ✅ الشات صغير (منطقة الذقن) */
     .chat{
-      height:150px;         /* أصغر من قبل */
+      height:120px;     /* صغّره/كبّره هنا */
+      max-height:120px;
       overflow:auto;
       border-radius:14px;
       border:1px solid rgba(148,163,184,.18);
-      padding:12px;
+      padding:10px 12px;
       background:rgba(2,6,23,.35);
-      line-height:1.75;
-      font-size:15px;
+      line-height:1.6;
+      font-size:14px;
     }
 
-    .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
-    button{border:0;cursor:pointer;padding:14px 16px;border-radius:999px;font-size:16px;font-weight:800;flex:1;min-width:220px}
+    .row{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    button{
+      border:0;
+      cursor:pointer;
+      padding:14px 16px;
+      border-radius:999px;
+      font-size:16px;
+      font-weight:800;
+      flex:1;
+      min-width:220px;
+    }
+
     #micBtn{background:var(--green);color:#052e16}
     #micBtn.recording{background:var(--red);color:#fff}
     #askBtn{background:var(--blue);color:#e0f2fe}
-    .smallrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
-    select{flex:1;min-width:260px;padding:10px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.25);background:rgba(2,6,23,.55);color:var(--txt);font-size:13px}
-    .toggle{flex:0;min-width:220px;background:rgba(15,23,42,.75);color:var(--txt);border:1px solid rgba(148,163,184,.25);font-weight:800}
-    .status{margin-top:10px;text-align:center;color:var(--muted);font-size:13px}
+
+    .smallrow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      align-items:center;
+    }
+
+    select{
+      flex:1;
+      min-width:260px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.25);
+      background:rgba(2,6,23,.55);
+      color:var(--txt);
+      font-size:13px;
+    }
+
+    .toggle{
+      flex:0;
+      min-width:220px;
+      background:rgba(15,23,42,.75);
+      color:var(--txt);
+      border:1px solid rgba(148,163,184,.25);
+      font-weight:800;
+    }
+
+    .status{
+      margin-top:10px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
 
     @media (max-width:520px){
-      .ui{padding:12px}
-      .chat{height:130px}
+      .brand h1{font-size:22px}
+      .chat{height:110px; max-height:110px}
       button{min-width:160px}
       select{min-width:200px}
-      .brand h1{font-size:22px}
+      .panel{padding:12px}
     }
   </style>
 </head>
+
 <body>
   <div class="stage">
 
@@ -613,5 +370,3 @@ select{
 </script>
 </body>
 </html>
-
-
