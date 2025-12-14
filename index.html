@@ -3,163 +3,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>المعلّم الذكي</title>
-
+  <title>المعلم الذكي</title>
   <style>
-    :root{
-      --bg:#020617;
-      --glass: rgba(2,6,23,.62);
-      --line: rgba(148,163,184,.22);
-      --txt:#f8fafc;
-      --muted:#cbd5e1;
-      --green:#22c55e;
-      --blue:#0ea5e9;
-      --red:#ef4444;
-    }
+    :root{--bg:#020617;--glass:rgba(2,6,23,.55);--line:rgba(148,163,184,.25);--txt:#f8fafc;--muted:#cbd5e1;--green:#22c55e;--blue:#0ea5e9;--red:#ef4444;}
     *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--txt);
-      font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-      height:100vh; overflow:hidden;
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;height:100vh;overflow:hidden}
+    .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%)}
+
+    /* الفيديو يغطي الشاشة */
+    video#avatarVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#020617}
+
+    /* صورة احتياطية تظهر دائماً */
+    img#avatarPoster{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; background:#020617;
+      filter:saturate(1.05) contrast(1.05);
+      transform:scale(1.10); /* تكبير خفيف للوجه */
     }
 
-    .stage{position:fixed; inset:0; overflow:hidden;}
-
-    /* خلفية الصورة */
-    #bgImg{
-      position:absolute; inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      object-position:center 20%;
-      transform:scale(1.02);
-      filter:contrast(1.05) saturate(1.05);
-    }
-
-    /* تغميق + فينيت */
-    .vignette{
-      position:absolute; inset:0;
-      background:
-        radial-gradient(1200px 700px at 50% 25%, rgba(0,0,0,.12) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.72) 100%),
-        linear-gradient(to bottom, rgba(0,0,0,.10), rgba(0,0,0,.55));
-      pointer-events:none;
-    }
-
-    /* الهيدر */
-    .brand{
-      position:absolute; top:16px; left:16px; right:16px;
-      width:min(980px,96vw); margin:0 auto;
-      background:rgba(2,6,23,.35);
-      border:1px solid rgba(148,163,184,.18);
-      backdrop-filter:blur(10px);
-      border-radius:18px;
-      padding:14px 16px;
-      text-align:center;
-    }
-    .brand h1{margin:0;font-size:30px}
+    .ui{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;gap:14px}
+    .brand{position:absolute;top:18px;right:18px;left:18px;width:min(980px,96vw);margin:0 auto;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:18px;padding:14px 16px;text-align:center}
+    .brand h1{margin:0;font-size:28px}
     .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
-
-    /* اللوحة */
-    .panelWrap{
-      position:absolute; left:0; right:0; bottom:0;
-      padding:16px 16px 18px;
-      display:flex; justify-content:center;
-    }
-    .panel{
-      width:min(980px,96vw);
-      background:var(--glass);
-      border:1px solid var(--line);
-      backdrop-filter:blur(12px);
-      border-radius:20px;
-      padding:14px;
-      box-shadow:0 24px 80px rgba(0,0,0,.55);
-    }
-
-    .subs{
-      width:100%;
-      border-radius:14px;
-      background:rgba(2,6,23,.35);
-      border:1px solid rgba(148,163,184,.16);
-      padding:10px 12px;
-      text-align:center;
-      color:var(--muted);
-      margin-bottom:10px;
-      min-height:44px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:14px;
-    }
-
-    .chat{
-      height:min(28vh,260px);
-      overflow:auto;
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,.18);
-      background:rgba(2,6,23,.25);
-      padding:12px;
-      line-height:1.75;
-      font-size:15px;
-    }
-
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center}
-    button{
-      border:0; cursor:pointer;
-      padding:14px 16px;
-      border-radius:999px;
-      font-size:16px;
-      font-weight:900;
-      flex:1;
-      min-width:220px;
-    }
+    .subs{width:min(980px,96vw);margin:0 auto;padding:10px 14px;border-radius:14px;background:rgba(2,6,23,.45);border:1px solid rgba(148,163,184,.18);text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center}
+    .panel{width:min(980px,96vw);margin:0 auto;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:18px;padding:14px}
+    .chat{height:min(30vh,260px);overflow:auto;border-radius:14px;border:1px solid rgba(148,163,184,.18);padding:12px;background:rgba(2,6,23,.35);line-height:1.75;font-size:15px}
+    .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+    button{border:0;cursor:pointer;padding:14px 16px;border-radius:999px;font-size:16px;font-weight:800;flex:1;min-width:220px}
     #micBtn{background:var(--green);color:#052e16}
     #micBtn.recording{background:var(--red);color:#fff}
     #askBtn{background:var(--blue);color:#e0f2fe}
-
-    .smallrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center}
-    select{
-      flex:1; min-width:260px;
-      padding:10px 12px; border-radius:999px;
-      border:1px solid rgba(148,163,184,.25);
-      background:rgba(2,6,23,.55);
-      color:var(--txt);
-      font-size:13px;
-    }
-    .toggle{
-      flex:0; min-width:260px;
-      background:rgba(15,23,42,.75);
-      color:var(--txt);
-      border:1px solid rgba(148,163,184,.25);
-      font-weight:900;
-    }
-
-    .status{margin-top:10px; text-align:center; color:var(--muted); font-size:13px}
-
-    @media (max-width:560px){
-      .brand h1{font-size:24px}
-      #bgImg{object-position:center 15%}
-      .panel{padding:12px}
-    }
+    .smallrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+    select{flex:1;min-width:260px;padding:10px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.25);background:rgba(2,6,23,.55);color:var(--txt);font-size:13px}
+    .toggle{flex:0;min-width:220px;background:rgba(15,23,42,.75);color:var(--txt);border:1px solid rgba(148,163,184,.25);font-weight:800}
+    .status{margin-top:10px;text-align:center;color:var(--muted);font-size:13px}
   </style>
 </head>
-
 <body>
   <div class="stage">
-    <!-- ✅ الخلفية: رابط iBB المباشر -->
-    <img id="bgImg" src="https://i.ibb.co/79tBtzg/Avatar.jpg" alt="Avatar">
-    <div class="vignette"></div>
+
+    <!-- صورة ثابتة احتياطية -->
+    <img id="avatarPoster" alt="Avatar" />
+
+    <!-- فيديو D-ID -->
+    <video id="avatarVideo" playsinline></video>
 
     <div class="brand">
-      <h1>المعلّم الذكي</h1>
-      <p>اسألني صوتيًا أو بالكتابة عن دروسك</p>
+      <h1>المعلم الذكي</h1>
+      <p>سؤال صوتي/كتابي → رد GPT → فيديو D-ID (شفاه تتحرك)</p>
     </div>
 
-    <div class="panelWrap">
-      <div class="panel">
-        <div id="subs" class="subs">جاهز لسؤال جديد.</div>
+    <div class="ui">
+      <div id="subs" class="subs">جاهز لسؤال جديد.</div>
 
+      <div class="panel">
         <div id="chatLog" class="chat">
           <div>👨‍🎓 الطالب: مرحبًا</div>
-          <div>🤖 المعلم: أهلًا بك يا بطل، اسألني عن أي درس.</div>
+          <div>🤖 المعلم: أهلًا بك، اطرح سؤالك.</div>
         </div>
 
         <div class="row">
@@ -172,25 +72,33 @@
             <option value="ar-SA-HamedNeural">Hamed (Saudi) - ذكر</option>
             <option value="ar-SA-ZariyahNeural">Zariyah (Saudi) - أنثى</option>
           </select>
-          <button id="voiceToggle" class="toggle">🔊 صوت Azure: مفعّل</button>
+          <button id="voiceToggle" class="toggle">🔊 صوت Azure احتياطي: مفعّل</button>
         </div>
 
-        <div id="status" class="status">الصوت من Azure — والرد من GPT عبر Apps Script.</div>
+        <div id="status" class="status">إذا تعذر D-ID سيشتغل Azure تلقائيًا.</div>
       </div>
     </div>
   </div>
 
 <script>
-  // ✅ هذا هو Web App حقك (لا تغيّره)
+  // 1) رابط Web App حقك
   const API_BASE = "https://script.google.com/macros/s/AKfycbwDxKqcI5ecojJswXMH6gAT8QaMZj88TO3PKcxNYvCWLIN11Y0tIZLPJ2H7GKzE1ef3/exec";
 
-  const micBtn      = document.getElementById('micBtn');
-  const askBtn      = document.getElementById('askBtn');
-  const chatLog     = document.getElementById('chatLog');
-  const statusEl    = document.getElementById('status');
-  const subsEl      = document.getElementById('subs');
+  // 2) رابط الصورة (لازم تكون Public)
+  // نفس File ID حق صورتك:
+  const AVATAR_URL = "https://i.ibb.co/79tBtzg/Avatar.jpg";
+
+  const micBtn = document.getElementById('micBtn');
+  const askBtn = document.getElementById('askBtn');
+  const chatLog = document.getElementById('chatLog');
+  const statusEl = document.getElementById('status');
+  const subsEl = document.getElementById('subs');
   const voiceToggle = document.getElementById('voiceToggle');
   const voiceSelect = document.getElementById('voiceSelect');
+  const videoEl = document.getElementById('avatarVideo');
+  const posterEl = document.getElementById('avatarPoster');
+
+  posterEl.src = AVATAR_URL;  // الآن الصورة تظهر دائماً
 
   let history = [];
   let voiceEnabled = true;
@@ -204,64 +112,60 @@
     chatLog.scrollTop = chatLog.scrollHeight;
   }
   function setSubs(t){ subsEl.textContent = t || ''; }
-
-  function stopAudio(){
-    try{
-      if(currentAudio){
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-      }
-    }catch(e){}
-    currentAudio = null;
-  }
+  function stopAudio(){ try{ if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;} }catch(e){} currentAudio=null; }
 
   async function apiGet(params){
     const url = API_BASE + (API_BASE.includes('?') ? '&' : '?') + new URLSearchParams(params).toString();
     const res = await fetch(url, { method:'GET' });
     const data = await res.json();
+    if(data && data.ok === false && data.error) throw new Error(data.error);
     return data;
   }
 
-  // ✅ تشغيل صوت Azure (من Apps Script)
   async function speakAzure(text){
     if(!voiceEnabled) return;
     stopAudio();
-
     const data = await apiGet({ action:'tts', text, voice: voiceSelect.value });
-    if(!data || !data.audioDataUri){
-      statusEl.textContent = "⚠️ لم يصل ملف صوت من Azure.";
-      return;
-    }
+    if(!data.audioDataUri) return;
     currentAudio = new Audio(data.audioDataUri);
-    currentAudio.onended = ()=> statusEl.textContent = "جاهز.";
-    currentAudio.onerror = ()=> statusEl.textContent = "⚠️ تعذر تشغيل الصوت.";
+    currentAudio.play().catch(()=>{});
+  }
+
+  async function playDid(text){
+    setSubs(text);
+    statusEl.textContent = "🎬 جاري توليد فيديو D-ID...";
     try{
-      await currentAudio.play();
-      statusEl.textContent = "🔊 يتحدث الآن...";
+      const data = await apiGet({ action:'did', text });
+      if(!data.videoUrl) throw new Error("No videoUrl from D-ID");
+
+      // شغّل الفيديو وخفّف ظهور الصورة
+      videoEl.src = data.videoUrl;
+      videoEl.muted = false;
+      await videoEl.play();
+
+      posterEl.style.opacity = "0.15";  // تبقى صورة خفيفة كخلفية لو تحب
+      statusEl.textContent = "✅ فيديو D-ID يعمل.";
+
     }catch(e){
-      statusEl.textContent = "⚠️ المتصفح منع التشغيل التلقائي — اضغط أي زر ثم جرّب.";
+      console.error(e);
+      statusEl.textContent = "⚠️ تعذر فيديو D-ID — تشغيل Azure احتياطي.";
+      posterEl.style.opacity = "1";
+      speakAzure(text);
     }
   }
 
-  // ✅ إرسال السؤال إلى GPT (Apps Script) ثم تشغيل Azure للرد
   async function ask(question){
-    setSubs("جاري الإرسال...");
-    statusEl.textContent = "⏳ جاري انتظار رد GPT...";
+    setSubs("جاري التفكير...");
+    statusEl.textContent = "⏳ جاري الإرسال...";
     const h = JSON.stringify(history);
-
     const data = await apiGet({ action:'ask', q: question, h });
-    const reply = (data && data.reply) ? data.reply : "لم يصل رد من السيرفر.";
-
+    const reply = data.reply || "لم أستطع الرد.";
     addLine("🤖 المعلم: ", reply);
-
     history.push({role:'user', content: question});
     history.push({role:'assistant', content: reply});
-
-    setSubs("تم الرد ✅");
-    await speakAzure(reply);
+    await playDid(data.clean || reply);
   }
 
-  // زر الكتابة
   askBtn.addEventListener('click', async ()=>{
     const q = prompt("اكتب سؤالك:");
     if(!q) return;
@@ -269,65 +173,53 @@
     await ask(q);
   });
 
-  // تشغيل/إيقاف صوت Azure
   voiceToggle.addEventListener('click', ()=>{
     voiceEnabled = !voiceEnabled;
-    voiceToggle.textContent = voiceEnabled ? "🔊 صوت Azure: مفعّل" : "🔈 صوت Azure: متوقف";
+    voiceToggle.textContent = voiceEnabled ? "🔊 صوت Azure احتياطي: مفعّل" : "🔈 صوت Azure احتياطي: متوقف";
     if(!voiceEnabled) stopAudio();
   });
 
-  // المايك (SpeechRecognition)
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognition = null;
 
-  if(!SR){
-    micBtn.disabled = true;
-    micBtn.style.opacity = .6;
+  if(!SpeechRecognition){
+    micBtn.disabled = true; micBtn.style.opacity=.6;
     statusEl.textContent = "المتصفح لا يدعم التعرف على الصوت. استخدم Chrome.";
-  } else {
-    recognition = new SR();
+  }else{
+    recognition = new SpeechRecognition();
     recognition.lang = 'ar-SA';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = ()=>{
-      isListening = true;
+      isListening=true;
       micBtn.classList.add('recording');
-      micBtn.textContent = "🛑 إيقاف";
+      micBtn.textContent="🛑 إيقاف";
       setSubs("تحدث الآن...");
-      statusEl.textContent = "🎙️ يستمع...";
+      statusEl.textContent="🎙️ يستمع الآن...";
     };
-
     recognition.onerror = (e)=>{
-      isListening = false;
+      isListening=false;
       micBtn.classList.remove('recording');
-      micBtn.textContent = "🎙️ اضغط وتحدّث";
+      micBtn.textContent="🎙️ اضغط وتحدّث";
+      statusEl.textContent="⚠️ خطأ بالمايك: "+e.error;
       setSubs("حاول مرة أخرى.");
-      statusEl.textContent = "⚠️ خطأ بالمايك: " + (e.error || '');
     };
-
     recognition.onend = ()=>{
-      isListening = false;
+      isListening=false;
       micBtn.classList.remove('recording');
-      micBtn.textContent = "🎙️ اضغط وتحدّث";
-      if(subsEl.textContent === "تحدث الآن...") setSubs("تم إنهاء الاستماع.");
+      micBtn.textContent="🎙️ اضغط وتحدّث";
     };
-
     recognition.onresult = async (event)=>{
       const transcript = event.results[0][0].transcript;
       addLine("👨‍🎓 الطالب: ", transcript);
       await ask(transcript);
     };
-
     micBtn.addEventListener('click', ()=>{
-      if(!isListening){
-        try{ recognition.start(); } catch(e){}
-      } else {
-        recognition.stop();
-      }
+      if(!isListening) recognition.start();
+      else recognition.stop();
     });
   }
 </script>
 </body>
 </html>
-
