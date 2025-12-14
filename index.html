@@ -5,77 +5,47 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>المعلم الذكي</title>
   <style>
-    :root{
-      --bg:#020617;
-      --glass:rgba(2,6,23,.55);
-      --line:rgba(148,163,184,.25);
-      --txt:#f8fafc;
-      --muted:#cbd5e1;
-      --green:#22c55e;
-      --blue:#0ea5e9;
-      --red:#ef4444;
-    }
+    :root{--bg:#020617;--glass:rgba(2,6,23,.55);--line:rgba(148,163,184,.25);--txt:#f8fafc;--muted:#cbd5e1;--green:#22c55e;--blue:#0ea5e9;--red:#ef4444;}
     *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;height:100vh;overflow:hidden}
+    .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%)}
 
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--txt);
-      font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-      height:100vh;
-      overflow:hidden;
-    }
-
-    .stage{
-      position:fixed;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%);
-    }
-
-    /* الفيديو يغطي الشاشة */
-    video#avatarVideo{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      background:#020617;
-    }
-
-    /* صورة احتياطية تظهر دائماً */
+    /* صورة الخلفية (ثابتة دائماً) */
     img#avatarPoster{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      background:#020617;
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; background:#020617;
       filter:saturate(1.05) contrast(1.05);
-      transform:scale(1.10); /* تكبير خفيف للوجه */
+      transform:scale(1.10);
+      z-index:1;
     }
 
-    /* ====== UI LAYOUT (تم تعديلها فقط) ====== */
+    /* الفيديو فوق الصورة لكن "مخفي" حتى يجيه src */
+    video#avatarVideo{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; background:transparent;
+      opacity:0;               /* مهم: لا يغطي الصورة وهو فاضي */
+      pointer-events:none;
+      transition:opacity .25s ease;
+      z-index:2;
+    }
+    /* إذا صار له src يظهر */
+    video#avatarVideo[src]{ opacity:1; }
+
+    /* ===== UI (أسفل الشاشة بعرض كامل) ===== */
     .ui{
-      position:absolute;
-      inset:0;
+      position:absolute; inset:0;
       display:flex;
       flex-direction:column;
       justify-content:flex-end;
-      padding:0;             /* بدل 20px */
-      gap:0;                 /* بدل 14px */
-      pointer-events:none;   /* نخلي الضغط على عناصر الواجهة فقط */
+      padding:18px;
+      gap:12px;
+      z-index:3;
+      pointer-events:none;
     }
 
-    /* عنوان أعلى الصفحة ثابت */
     .brand{
-      position:fixed;
-      top:18px;
-      left:18px;
-      right:18px;
-      width:min(1100px,96vw);
+      position:absolute; top:18px; right:18px; left:18px;
+      width: min(1100px, 96vw);
       margin:0 auto;
       background:var(--glass);
       border:1px solid var(--line);
@@ -88,13 +58,10 @@
     .brand h1{margin:0;font-size:28px}
     .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
 
-    /* شريط حالة/ترجمة (سطر واحد) فوق اللوحة السفلية */
+    /* سطر الحالة فوق البانل مباشرة (في الأسفل) */
     .subs{
-      position:fixed;
-      left:18px;
-      right:18px;
-      bottom: calc(18px + 340px); /* يرفع الشريط فوق اللوحة */
-      width:min(1100px,96vw);
+      width:100%;
+      max-width:1100px;
       margin:0 auto;
       padding:10px 14px;
       border-radius:14px;
@@ -108,28 +75,22 @@
       pointer-events:auto;
     }
 
-    /* اللوحة الأساسية تصبح أسفل الشاشة بعرض كبير */
+    /* البانل أسفل الشاشة بعرض كامل */
     .panel{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
       width:100%;
-      max-width:1200px;
+      max-width:1100px;     /* لو تبيه 100% بالكامل احذف السطر هذا */
       margin:0 auto;
       background:var(--glass);
       border:1px solid var(--line);
-      border-bottom:0;
-      backdrop-filter:blur(12px);
-      border-radius:22px 22px 0 0;
-      padding:16px 18px 18px;
-      box-shadow:0 -20px 60px rgba(0,0,0,.55);
+      backdrop-filter:blur(10px);
+      border-radius:18px;
+      padding:14px;
       pointer-events:auto;
     }
 
-    /* الشات أصغر حتى ما يغطي فم المعلم */
+    /* الشات أصغر حتى ما يغطي الفم */
     .chat{
-      height:min(20vh,190px); /* كان 30vh,260px */
+      height:150px;         /* أصغر من قبل */
       overflow:auto;
       border-radius:14px;
       border:1px solid rgba(148,163,184,.18);
@@ -139,71 +100,22 @@
       font-size:15px;
     }
 
-    .row{
-      display:flex;
-      gap:10px;
-      margin-top:12px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    button{
-      border:0;
-      cursor:pointer;
-      padding:14px 16px;
-      border-radius:999px;
-      font-size:16px;
-      font-weight:800;
-      flex:1;
-      min-width:220px;
-    }
-
+    .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
+    button{border:0;cursor:pointer;padding:14px 16px;border-radius:999px;font-size:16px;font-weight:800;flex:1;min-width:220px}
     #micBtn{background:var(--green);color:#052e16}
     #micBtn.recording{background:var(--red);color:#fff}
     #askBtn{background:var(--blue);color:#e0f2fe}
+    .smallrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
+    select{flex:1;min-width:260px;padding:10px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.25);background:rgba(2,6,23,.55);color:var(--txt);font-size:13px}
+    .toggle{flex:0;min-width:220px;background:rgba(15,23,42,.75);color:var(--txt);border:1px solid rgba(148,163,184,.25);font-weight:800}
+    .status{margin-top:10px;text-align:center;color:var(--muted);font-size:13px}
 
-    .smallrow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      align-items:center;
-    }
-
-    select{
-      flex:1;
-      min-width:260px;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.25);
-      background:rgba(2,6,23,.55);
-      color:var(--txt);
-      font-size:13px;
-    }
-
-    .toggle{
-      flex:0;
-      min-width:220px;
-      background:rgba(15,23,42,.75);
-      color:var(--txt);
-      border:1px solid rgba(148,163,184,.25);
-      font-weight:800;
-    }
-
-    .status{
-      margin-top:10px;
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    /* تحسين للموبايل: تخفيف ارتفاع اللوحة */
-    @media (max-width: 520px){
-      .panel{padding:14px 12px 14px}
-      .chat{height:min(18vh,170px)}
-      .subs{bottom: calc(12px + 330px)}
-      button{min-width: 160px}
-      select{min-width: 200px}
+    @media (max-width:520px){
+      .ui{padding:12px}
+      .chat{height:130px}
+      button{min-width:160px}
+      select{min-width:200px}
+      .brand h1{font-size:22px}
     }
   </style>
 </head>
@@ -306,12 +218,11 @@
       const data = await apiGet({ action:'did', text });
       if(!data.videoUrl) throw new Error("No videoUrl from D-ID");
 
-      // شغّل الفيديو وخفّف ظهور الصورة
       videoEl.src = data.videoUrl;
       videoEl.muted = false;
       await videoEl.play();
 
-      posterEl.style.opacity = "0.15";  // تبقى صورة خفيفة كخلفية لو تحب
+      posterEl.style.opacity = "0.15";
       statusEl.textContent = "✅ فيديو D-ID يعمل.";
 
     }catch(e){
@@ -391,5 +302,3 @@
 </script>
 </body>
 </html>
-
-
