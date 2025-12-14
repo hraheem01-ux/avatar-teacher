@@ -1,4 +1,4 @@
-f<!doctype html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
@@ -8,14 +8,25 @@ f<!doctype html>
     :root{--bg:#020617;--glass:rgba(2,6,23,.55);--line:rgba(148,163,184,.25);--txt:#f8fafc;--muted:#cbd5e1;--green:#22c55e;--blue:#0ea5e9;--red:#ef4444;}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;height:100vh;overflow:hidden}
-    .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 55%, #020617 100%)}
+    .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%)}
+
+    /* الفيديو يغطي الشاشة */
     video#avatarVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#020617}
-    .ui{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;gap:14px;pointer-events:none}
-    .brand{position:absolute;top:18px;right:18px;left:18px;width:min(980px,96vw);margin:0 auto;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:18px;padding:14px 16px;text-align:center;pointer-events:none}
+
+    /* صورة احتياطية تظهر دائماً */
+    img#avatarPoster{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; background:#020617;
+      filter:saturate(1.05) contrast(1.05);
+      transform:scale(1.10); /* تكبير خفيف للوجه */
+    }
+
+    .ui{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;gap:14px}
+    .brand{position:absolute;top:18px;right:18px;left:18px;width:min(980px,96vw);margin:0 auto;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:18px;padding:14px 16px;text-align:center}
     .brand h1{margin:0;font-size:28px}
     .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
-    .subs{width:min(980px,96vw);margin:0 auto;padding:10px 14px;border-radius:14px;background:rgba(2,6,23,.45);border:1px solid rgba(148,163,184,.18);text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;pointer-events:none}
-    .panel{width:min(980px,96vw);margin:0 auto;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:18px;padding:14px;pointer-events:auto}
+    .subs{width:min(980px,96vw);margin:0 auto;padding:10px 14px;border-radius:14px;background:rgba(2,6,23,.45);border:1px solid rgba(148,163,184,.18);text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center}
+    .panel{width:min(980px,96vw);margin:0 auto;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);border-radius:18px;padding:14px}
     .chat{height:min(30vh,260px);overflow:auto;border-radius:14px;border:1px solid rgba(148,163,184,.18);padding:12px;background:rgba(2,6,23,.35);line-height:1.75;font-size:15px}
     .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center}
     button{border:0;cursor:pointer;padding:14px 16px;border-radius:999px;font-size:16px;font-weight:800;flex:1;min-width:220px}
@@ -30,7 +41,12 @@ f<!doctype html>
 </head>
 <body>
   <div class="stage">
-    <video id="avatarVideo" playsinline muted></video>
+
+    <!-- صورة ثابتة احتياطية -->
+    <img id="avatarPoster" alt="Avatar" />
+
+    <!-- فيديو D-ID -->
+    <video id="avatarVideo" playsinline></video>
 
     <div class="brand">
       <h1>المعلم الذكي</h1>
@@ -56,17 +72,21 @@ f<!doctype html>
             <option value="ar-SA-HamedNeural">Hamed (Saudi) - ذكر</option>
             <option value="ar-SA-ZariyahNeural">Zariyah (Saudi) - أنثى</option>
           </select>
-          <button id="voiceToggle" class="toggle">🔊 صوت احتياطي Azure: مفعّل</button>
+          <button id="voiceToggle" class="toggle">🔊 صوت Azure احتياطي: مفعّل</button>
         </div>
 
-        <div id="status" class="status">إذا تأخر الفيديو، الصوت الاحتياطي يعمل.</div>
+        <div id="status" class="status">إذا تعذر D-ID سيشتغل Azure تلقائيًا.</div>
       </div>
     </div>
   </div>
 
 <script>
+  // 1) رابط Web App حقك
   const API_BASE = "https://script.google.com/macros/s/AKfycbwDxKqcI5ecojJswXMH6gAT8QaMZj88TO3PKcxNYvCWLIN11Y0tIZLPJ2H7GKzE1ef3/exec";
- // <-- حط رابط Web App هنا
+
+  // 2) رابط الصورة (لازم تكون Public)
+  // نفس File ID حق صورتك:
+  const AVATAR_URL = "https://drive.google.com/file/d/1PPnEInmBsKJvxHZC6sqajl6zANW201Tz/view";
 
   const micBtn = document.getElementById('micBtn');
   const askBtn = document.getElementById('askBtn');
@@ -76,6 +96,9 @@ f<!doctype html>
   const voiceToggle = document.getElementById('voiceToggle');
   const voiceSelect = document.getElementById('voiceSelect');
   const videoEl = document.getElementById('avatarVideo');
+  const posterEl = document.getElementById('avatarPoster');
+
+  posterEl.src = AVATAR_URL;  // الآن الصورة تظهر دائماً
 
   let history = [];
   let voiceEnabled = true;
@@ -95,7 +118,7 @@ f<!doctype html>
     const url = API_BASE + (API_BASE.includes('?') ? '&' : '?') + new URLSearchParams(params).toString();
     const res = await fetch(url, { method:'GET' });
     const data = await res.json();
-    if(!data.ok && data.error) throw new Error(data.error);
+    if(data && data.ok === false && data.error) throw new Error(data.error);
     return data;
   }
 
@@ -113,14 +136,20 @@ f<!doctype html>
     statusEl.textContent = "🎬 جاري توليد فيديو D-ID...";
     try{
       const data = await apiGet({ action:'did', text });
-      if(!data.videoUrl) throw new Error("No videoUrl");
-      videoEl.muted = false;
+      if(!data.videoUrl) throw new Error("No videoUrl from D-ID");
+
+      // شغّل الفيديو وخفّف ظهور الصورة
       videoEl.src = data.videoUrl;
+      videoEl.muted = false;
       await videoEl.play();
-      statusEl.textContent = "✅ يعمل الآن.";
+
+      posterEl.style.opacity = "0.15";  // تبقى صورة خفيفة كخلفية لو تحب
+      statusEl.textContent = "✅ فيديو D-ID يعمل.";
+
     }catch(e){
       console.error(e);
-      statusEl.textContent = "⚠️ تعذر فيديو D-ID — تشغيل صوت Azure الاحتياطي.";
+      statusEl.textContent = "⚠️ تعذر فيديو D-ID — تشغيل Azure احتياطي.";
+      posterEl.style.opacity = "1";
       speakAzure(text);
     }
   }
@@ -146,7 +175,7 @@ f<!doctype html>
 
   voiceToggle.addEventListener('click', ()=>{
     voiceEnabled = !voiceEnabled;
-    voiceToggle.textContent = voiceEnabled ? "🔊 صوت احتياطي Azure: مفعّل" : "🔈 صوت احتياطي Azure: متوقف";
+    voiceToggle.textContent = voiceEnabled ? "🔊 صوت Azure احتياطي: مفعّل" : "🔈 صوت Azure احتياطي: متوقف";
     if(!voiceEnabled) stopAudio();
   });
 
