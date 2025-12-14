@@ -16,6 +16,7 @@
       --blue:#0ea5e9;
       --red:#ef4444;
     }
+
     *{box-sizing:border-box}
 
     body{
@@ -34,7 +35,7 @@
       background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%);
     }
 
-    /* صورة الخلفية (ثابتة دائماً) */
+    /* صورة الخلفية */
     img#avatarPoster{
       position:absolute; inset:0;
       width:100%; height:100%;
@@ -53,62 +54,44 @@
       background:transparent;
       z-index:2;
 
-      opacity:0;               /* مخفي افتراضيًا */
-      pointer-events:none;     /* مهم: لا يمنع ضغط الأزرار */
+      opacity:0;
+      pointer-events:none;
       transition:opacity .25s ease;
     }
     video#avatarVideo[src]{ opacity:1; }
 
-    /* العنوان أعلى */
-    .brand{
-      position:absolute;
-      top:18px; right:18px; left:18px;
-      width:min(1100px,96vw);
-      margin:0 auto;
-      background:rgba(2,6,23,.45);
-      border:1px solid rgba(148,163,184,.20);
-      backdrop-filter:blur(10px);
-      border-radius:18px;
-      padding:14px 16px;
-      text-align:center;
-      z-index:10;
-      pointer-events:auto;
-    }
-    .brand h1{margin:0;font-size:28px}
-    .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    /* ✅ إخفاء صندوق العنوان اللي فوق نهائيًا */
+    .brand{ display:none !important; }
 
-    /* ✅ إلغاء شريط النص العلوي نهائياً */
+    /* ✅ إخفاء الشريط العلوي (subs) نهائيًا */
     #subs, .subs{ display:none !important; }
 
     /* واجهة أسفل الشاشة */
     .ui{
       position:absolute;
       left:0; right:0; bottom:0;
-      padding:0;
       z-index:20;
-
-      /* نخلي الضغط فقط داخل الكارد */
+      padding:0 0 18px;
       pointer-events:none;
     }
 
-    /* ✅ الكارد السفلي بعرض الشاشة كامل */
+    /* ✅ الكارد بعرض "القوس البرتقالي" */
     .panel{
-      width:100vw;
-      max-width:100vw;
-      margin:0;
+      width:min(1100px, 92vw);
+      margin:0 auto;
       background:var(--glass);
-      border-top:1px solid rgba(148,163,184,.25);
-      border-left:none; border-right:none; border-bottom:none;
+      border:1px solid rgba(148,163,184,.20);
       backdrop-filter:blur(14px);
-      border-radius:24px 24px 0 0;
-      padding:14px 18px 16px;
 
-      pointer-events:auto; /* يرجع الضغط داخل الكارد */
+      border-radius:22px;
+      padding:14px 16px 16px;
+
+      pointer-events:auto;
     }
 
-    /* ✅ الشات صغير (منطقة الذقن) */
+    /* ✅ الشات صغير (لا يطلع فوق) */
     .chat{
-      height:120px;     /* صغّره/كبّره هنا */
+      height:120px;
       max-height:120px;
       overflow:auto;
       border-radius:14px;
@@ -178,11 +161,10 @@
     }
 
     @media (max-width:520px){
-      .brand h1{font-size:22px}
-      .chat{height:110px; max-height:110px}
-      button{min-width:160px}
-      select{min-width:200px}
-      .panel{padding:12px}
+      .panel{ width:min(980px, 96vw); }
+      .chat{ height:110px; max-height:110px; }
+      button{ min-width:160px; }
+      select{ min-width:200px; }
     }
   </style>
 </head>
@@ -196,12 +178,14 @@
     <!-- فيديو D-ID -->
     <video id="avatarVideo" playsinline></video>
 
+    <!-- (موجودة كما هي لكن مخفية بالـ CSS) -->
     <div class="brand">
       <h1>المعلم الذكي</h1>
       <p>سؤال صوتي/كتابي → رد GPT → فيديو D-ID (شفاه تتحرك)</p>
     </div>
 
     <div class="ui">
+      <!-- (موجودة كما هي لكن مخفية بالـ CSS) -->
       <div id="subs" class="subs">جاهز لسؤال جديد.</div>
 
       <div class="panel">
