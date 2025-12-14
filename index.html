@@ -3,14 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>المعلم الذكي</title>
+  <title>المعلّم الذكي</title>
 
   <style>
     :root{
       --bg:#020617;
-      --glass:rgba(2,6,23,.55);
-      --glass2:rgba(2,6,23,.72);
-      --line:rgba(148,163,184,.22);
+      --glass: rgba(2,6,23,.62);
+      --line: rgba(148,163,184,.22);
       --txt:#f8fafc;
       --muted:#cbd5e1;
       --green:#22c55e;
@@ -19,31 +18,35 @@
     }
     *{box-sizing:border-box}
     body{
-      margin:0;background:var(--bg);color:var(--txt);
+      margin:0;
+      background:var(--bg);
+      color:var(--txt);
       font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-      height:100vh;overflow:hidden;
+      height:100vh; overflow:hidden;
     }
 
+    .stage{position:fixed; inset:0; overflow:hidden;}
+
     /* خلفية الصورة */
-    .stage{position:fixed;inset:0;overflow:hidden}
-    #avatarPoster{
-      position:absolute; inset:0; width:100%; height:100%;
+    #bgImg{
+      position:absolute; inset:0;
+      width:100%; height:100%;
       object-fit:cover;
-      object-position:center 20%; /* يرفع الوجه شوي فوق */
+      object-position:center 20%;
       transform:scale(1.02);
       filter:contrast(1.05) saturate(1.05);
     }
 
-    /* تغميق + فينيت عشان الكارد يبان وما يدفن الوجه */
+    /* تغميق + فينيت */
     .vignette{
       position:absolute; inset:0;
       background:
-        radial-gradient(1200px 700px at 50% 25%, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.72) 100%),
-        linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.55));
+        radial-gradient(1200px 700px at 50% 25%, rgba(0,0,0,.12) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.72) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,.10), rgba(0,0,0,.55));
       pointer-events:none;
     }
 
-    /* الهيدر فوق */
+    /* الهيدر */
     .brand{
       position:absolute; top:16px; left:16px; right:16px;
       width:min(980px,96vw); margin:0 auto;
@@ -54,10 +57,10 @@
       padding:14px 16px;
       text-align:center;
     }
-    .brand h1{margin:0;font-size:30px;letter-spacing:.2px}
+    .brand h1{margin:0;font-size:30px}
     .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
 
-    /* الكارد تحت (بدل ما يكون على الوجه) */
+    /* اللوحة */
     .panelWrap{
       position:absolute; left:0; right:0; bottom:0;
       padding:16px 16px 18px;
@@ -65,7 +68,7 @@
     }
     .panel{
       width:min(980px,96vw);
-      background:var(--glass2);
+      background:var(--glass);
       border:1px solid var(--line);
       backdrop-filter:blur(12px);
       border-radius:20px;
@@ -88,7 +91,7 @@
     }
 
     .chat{
-      height:min(24vh,220px);
+      height:min(28vh,260px);
       overflow:auto;
       border-radius:14px;
       border:1px solid rgba(148,163,184,.18);
@@ -98,10 +101,7 @@
       font-size:15px;
     }
 
-    .row{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin-top:12px; align-items:center;
-    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; align-items:center}
     button{
       border:0; cursor:pointer;
       padding:14px 16px;
@@ -115,38 +115,28 @@
     #micBtn.recording{background:var(--red);color:#fff}
     #askBtn{background:var(--blue);color:#e0f2fe}
 
-    .inputRow{
-      display:flex; gap:10px; margin-top:10px;
-    }
-    #textInput{
-      flex:1;
-      padding:12px 14px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.22);
+    .smallrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; align-items:center}
+    select{
+      flex:1; min-width:260px;
+      padding:10px 12px; border-radius:999px;
+      border:1px solid rgba(148,163,184,.25);
       background:rgba(2,6,23,.55);
       color:var(--txt);
-      outline:none;
-      font-size:15px;
-    }
-    #sendBtn{
-      flex:0;
-      min-width:160px;
-      background:rgba(15,23,42,.85);
-      color:var(--txt);
-      border:1px solid rgba(148,163,184,.22);
-    }
-
-    .status{
-      margin-top:10px;
-      text-align:center;
-      color:var(--muted);
       font-size:13px;
     }
+    .toggle{
+      flex:0; min-width:260px;
+      background:rgba(15,23,42,.75);
+      color:var(--txt);
+      border:1px solid rgba(148,163,184,.25);
+      font-weight:900;
+    }
 
-    /* على الجوال نخلي اللوحة أعلى شوي */
+    .status{margin-top:10px; text-align:center; color:var(--muted); font-size:13px}
+
     @media (max-width:560px){
       .brand h1{font-size:24px}
-      #avatarPoster{object-position:center 15%}
+      #bgImg{object-position:center 15%}
       .panel{padding:12px}
     }
   </style>
@@ -154,13 +144,13 @@
 
 <body>
   <div class="stage">
-    <!-- ✅ غيّر رابط الصورة هنا فقط -->
-    <img id="avatarPoster" src="https://i.ibb.co/79tBtzg/Avatar.jpg" alt="المعلم الذكي">
+    <!-- ✅ الخلفية: رابط iBB المباشر -->
+    <img id="bgImg" src="https://i.ibb.co/79tBtzg/Avatar.jpg" alt="Avatar">
     <div class="vignette"></div>
 
     <div class="brand">
-      <h1>المعلم الذكي</h1>
-      <p>اسألني صوتيًا أو كتابيًا</p>
+      <h1>المعلّم الذكي</h1>
+      <p>اسألني صوتيًا أو بالكتابة عن دروسك</p>
     </div>
 
     <div class="panelWrap">
@@ -169,64 +159,126 @@
 
         <div id="chatLog" class="chat">
           <div>👨‍🎓 الطالب: مرحبًا</div>
-          <div>🤖 المعلم: أهلًا بك، اطرح سؤالك.</div>
+          <div>🤖 المعلم: أهلًا بك يا بطل، اسألني عن أي درس.</div>
         </div>
 
         <div class="row">
           <button id="micBtn">🎙️ اضغط وتحدّث</button>
-          <button id="askBtn">✏️ كتابة سؤال</button>
+          <button id="askBtn">✏️ اضغط لكتابة سؤال</button>
         </div>
 
-        <div id="inputRow" class="inputRow" style="display:none">
-          <input id="textInput" type="text" placeholder="اكتب سؤالك هنا..." />
-          <button id="sendBtn">إرسال</button>
+        <div class="smallrow">
+          <select id="voiceSelect">
+            <option value="ar-SA-HamedNeural">Hamed (Saudi) - ذكر</option>
+            <option value="ar-SA-ZariyahNeural">Zariyah (Saudi) - أنثى</option>
+          </select>
+          <button id="voiceToggle" class="toggle">🔊 صوت Azure: مفعّل</button>
         </div>
 
-        <div id="status" class="status">افتح الصفحة على Chrome واسمح بالمايك.</div>
+        <div id="status" class="status">الصوت من Azure — والرد من GPT عبر Apps Script.</div>
       </div>
     </div>
   </div>
 
 <script>
-  const micBtn   = document.getElementById('micBtn');
-  const askBtn   = document.getElementById('askBtn');
-  const chatLog  = document.getElementById('chatLog');
-  const subsEl   = document.getElementById('subs');
-  const statusEl = document.getElementById('status');
+  // ✅ هذا هو Web App حقك (لا تغيّره)
+  const API_BASE = "https://script.google.com/macros/s/AKfycbwDxKqcI5ecojJswXMH6gAT8QaMZj88TO3PKcxNYvCWLIN11Y0tIZLPJ2H7GKzE1ef3/exec";
 
-  const inputRow = document.getElementById('inputRow');
-  const textInput= document.getElementById('textInput');
-  const sendBtn  = document.getElementById('sendBtn');
+  const micBtn      = document.getElementById('micBtn');
+  const askBtn      = document.getElementById('askBtn');
+  const chatLog     = document.getElementById('chatLog');
+  const statusEl    = document.getElementById('status');
+  const subsEl      = document.getElementById('subs');
+  const voiceToggle = document.getElementById('voiceToggle');
+  const voiceSelect = document.getElementById('voiceSelect');
 
-  function add(prefix, text){
-    const d=document.createElement('div');
-    d.textContent=prefix+text;
-    chatLog.appendChild(d);
-    chatLog.scrollTop=chatLog.scrollHeight;
+  let history = [];
+  let voiceEnabled = true;
+  let currentAudio = null;
+  let isListening = false;
+
+  function addLine(prefix, text){
+    const div = document.createElement('div');
+    div.textContent = prefix + text;
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
   }
   function setSubs(t){ subsEl.textContent = t || ''; }
 
-  // ====== كتابة احترافية (بدون prompt) ======
-  askBtn.onclick = ()=>{
-    inputRow.style.display = (inputRow.style.display === 'none') ? 'flex' : 'none';
-    if(inputRow.style.display !== 'none') textInput.focus();
-  };
-  function sendText(){
-    const q = (textInput.value||'').trim();
-    if(!q) return;
-    add("👨‍🎓 الطالب: ", q);
-    // هنا لاحقًا تربطه بـ GPT
-    add("🤖 المعلم: ", "تم استلام سؤالك.");
-    textInput.value='';
-    setSubs("تم إرسال السؤال.");
+  function stopAudio(){
+    try{
+      if(currentAudio){
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+    }catch(e){}
+    currentAudio = null;
   }
-  sendBtn.onclick = sendText;
-  textInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendText(); });
 
-  // ====== مايك احترافي Start/Stop ======
+  async function apiGet(params){
+    const url = API_BASE + (API_BASE.includes('?') ? '&' : '?') + new URLSearchParams(params).toString();
+    const res = await fetch(url, { method:'GET' });
+    const data = await res.json();
+    return data;
+  }
+
+  // ✅ تشغيل صوت Azure (من Apps Script)
+  async function speakAzure(text){
+    if(!voiceEnabled) return;
+    stopAudio();
+
+    const data = await apiGet({ action:'tts', text, voice: voiceSelect.value });
+    if(!data || !data.audioDataUri){
+      statusEl.textContent = "⚠️ لم يصل ملف صوت من Azure.";
+      return;
+    }
+    currentAudio = new Audio(data.audioDataUri);
+    currentAudio.onended = ()=> statusEl.textContent = "جاهز.";
+    currentAudio.onerror = ()=> statusEl.textContent = "⚠️ تعذر تشغيل الصوت.";
+    try{
+      await currentAudio.play();
+      statusEl.textContent = "🔊 يتحدث الآن...";
+    }catch(e){
+      statusEl.textContent = "⚠️ المتصفح منع التشغيل التلقائي — اضغط أي زر ثم جرّب.";
+    }
+  }
+
+  // ✅ إرسال السؤال إلى GPT (Apps Script) ثم تشغيل Azure للرد
+  async function ask(question){
+    setSubs("جاري الإرسال...");
+    statusEl.textContent = "⏳ جاري انتظار رد GPT...";
+    const h = JSON.stringify(history);
+
+    const data = await apiGet({ action:'ask', q: question, h });
+    const reply = (data && data.reply) ? data.reply : "لم يصل رد من السيرفر.";
+
+    addLine("🤖 المعلم: ", reply);
+
+    history.push({role:'user', content: question});
+    history.push({role:'assistant', content: reply});
+
+    setSubs("تم الرد ✅");
+    await speakAzure(reply);
+  }
+
+  // زر الكتابة
+  askBtn.addEventListener('click', async ()=>{
+    const q = prompt("اكتب سؤالك:");
+    if(!q) return;
+    addLine("👨‍🎓 الطالب: ", q);
+    await ask(q);
+  });
+
+  // تشغيل/إيقاف صوت Azure
+  voiceToggle.addEventListener('click', ()=>{
+    voiceEnabled = !voiceEnabled;
+    voiceToggle.textContent = voiceEnabled ? "🔊 صوت Azure: مفعّل" : "🔈 صوت Azure: متوقف";
+    if(!voiceEnabled) stopAudio();
+  });
+
+  // المايك (SpeechRecognition)
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognition = null;
-  let isListening = false;
 
   if(!SR){
     micBtn.disabled = true;
@@ -241,7 +293,7 @@
     recognition.onstart = ()=>{
       isListening = true;
       micBtn.classList.add('recording');
-      micBtn.textContent = "🛑 إيقاف التسجيل";
+      micBtn.textContent = "🛑 إيقاف";
       setSubs("تحدث الآن...");
       statusEl.textContent = "🎙️ يستمع...";
     };
@@ -250,7 +302,7 @@
       isListening = false;
       micBtn.classList.remove('recording');
       micBtn.textContent = "🎙️ اضغط وتحدّث";
-      setSubs("حصل خطأ.");
+      setSubs("حاول مرة أخرى.");
       statusEl.textContent = "⚠️ خطأ بالمايك: " + (e.error || '');
     };
 
@@ -258,29 +310,24 @@
       isListening = false;
       micBtn.classList.remove('recording');
       micBtn.textContent = "🎙️ اضغط وتحدّث";
-      statusEl.textContent = "جاهز.";
-      // لا نغير subs هنا لو كان فيه نص
+      if(subsEl.textContent === "تحدث الآن...") setSubs("تم إنهاء الاستماع.");
     };
 
-    recognition.onresult = (event)=>{
+    recognition.onresult = async (event)=>{
       const transcript = event.results[0][0].transcript;
-      add("👨‍🎓 الطالب: ", transcript);
-      setSubs("تم استلام سؤالك صوتيًا.");
-      // هنا لاحقًا تربطه بـ GPT
-      add("🤖 المعلم: ", "تم استلام سؤالك.");
+      addLine("👨‍🎓 الطالب: ", transcript);
+      await ask(transcript);
     };
 
-    micBtn.onclick = ()=>{
-      // لازم يكون بعد "Gesture" من المستخدم — وهذا يتحقق لأنك ضغطت زر
+    micBtn.addEventListener('click', ()=>{
       if(!isListening){
-        try { recognition.start(); }
-        catch(e){ /* أحياناً start مرتين بسرعة */ }
+        try{ recognition.start(); } catch(e){}
       } else {
         recognition.stop();
       }
-    };
+    });
   }
 </script>
-
 </body>
 </html>
+
