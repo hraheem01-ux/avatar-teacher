@@ -7,98 +7,166 @@
 
   <style>
     :root{
-      --bg:#020617;--glass:rgba(2,6,23,.55);--line:rgba(148,163,184,.25);
-      --txt:#f8fafc;--muted:#cbd5e1;--green:#22c55e;--blue:#0ea5e9;--red:#ef4444;
+      --bg:#020617;
+      --glass:rgba(2,6,23,.55);
+      --glass2:rgba(2,6,23,.72);
+      --line:rgba(148,163,184,.22);
+      --txt:#f8fafc;
+      --muted:#cbd5e1;
+      --green:#22c55e;
+      --blue:#0ea5e9;
+      --red:#ef4444;
     }
     *{box-sizing:border-box}
     body{
       margin:0;background:var(--bg);color:var(--txt);
       font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-      height:100vh;overflow:hidden
-    }
-    .stage{
-      position:fixed;inset:0;
-      background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%);
+      height:100vh;overflow:hidden;
     }
 
-    /* صورة المعلم (تغطي الشاشة) */
-    img#avatarPoster{
-      position:absolute; inset:0;
-      width:100%; height:100%;
+    /* خلفية الصورة */
+    .stage{position:fixed;inset:0;overflow:hidden}
+    #avatarPoster{
+      position:absolute; inset:0; width:100%; height:100%;
       object-fit:cover;
-      transform:scale(1.08);
+      object-position:center 20%; /* يرفع الوجه شوي فوق */
+      transform:scale(1.02);
       filter:contrast(1.05) saturate(1.05);
     }
 
-    .ui{
+    /* تغميق + فينيت عشان الكارد يبان وما يدفن الوجه */
+    .vignette{
       position:absolute; inset:0;
-      display:flex; flex-direction:column; justify-content:flex-end;
-      padding:20px; gap:14px;
+      background:
+        radial-gradient(1200px 700px at 50% 25%, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.72) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,.12), rgba(0,0,0,.55));
+      pointer-events:none;
     }
 
+    /* الهيدر فوق */
     .brand{
-      position:absolute; top:20px; left:20px; right:20px;
-      max-width:900px; margin:auto;
-      background:var(--glass);
-      border:1px solid var(--line);
+      position:absolute; top:16px; left:16px; right:16px;
+      width:min(980px,96vw); margin:0 auto;
+      background:rgba(2,6,23,.35);
+      border:1px solid rgba(148,163,184,.18);
       backdrop-filter:blur(10px);
       border-radius:18px;
-      padding:14px;
+      padding:14px 16px;
       text-align:center;
     }
-    .brand h1{margin:0;font-size:28px}
-    .brand p{margin:6px 0 0;color:var(--muted)}
+    .brand h1{margin:0;font-size:30px;letter-spacing:.2px}
+    .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
 
+    /* الكارد تحت (بدل ما يكون على الوجه) */
+    .panelWrap{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:16px 16px 18px;
+      display:flex; justify-content:center;
+    }
     .panel{
-      max-width:900px;margin:auto;
-      background:var(--glass);
+      width:min(980px,96vw);
+      background:var(--glass2);
       border:1px solid var(--line);
-      backdrop-filter:blur(10px);
-      border-radius:18px;
+      backdrop-filter:blur(12px);
+      border-radius:20px;
       padding:14px;
+      box-shadow:0 24px 80px rgba(0,0,0,.55);
+    }
+
+    .subs{
+      width:100%;
+      border-radius:14px;
+      background:rgba(2,6,23,.35);
+      border:1px solid rgba(148,163,184,.16);
+      padding:10px 12px;
+      text-align:center;
+      color:var(--muted);
+      margin-bottom:10px;
+      min-height:44px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:14px;
     }
 
     .chat{
-      max-height:240px;
+      height:min(24vh,220px);
       overflow:auto;
-      background:rgba(2,6,23,.4);
       border-radius:14px;
+      border:1px solid rgba(148,163,184,.18);
+      background:rgba(2,6,23,.25);
       padding:12px;
-      line-height:1.7;
+      line-height:1.75;
+      font-size:15px;
     }
 
-    .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .row{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:12px; align-items:center;
+    }
     button{
-      flex:1; min-width:220px;
-      border:0; border-radius:999px;
-      padding:14px; font-size:16px; font-weight:800;
-      cursor:pointer;
+      border:0; cursor:pointer;
+      padding:14px 16px;
+      border-radius:999px;
+      font-size:16px;
+      font-weight:900;
+      flex:1;
+      min-width:220px;
     }
     #micBtn{background:var(--green);color:#052e16}
     #micBtn.recording{background:var(--red);color:#fff}
     #askBtn{background:var(--blue);color:#e0f2fe}
 
-    .status{text-align:center;color:var(--muted);margin-top:10px}
+    .inputRow{
+      display:flex; gap:10px; margin-top:10px;
+    }
+    #textInput{
+      flex:1;
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.22);
+      background:rgba(2,6,23,.55);
+      color:var(--txt);
+      outline:none;
+      font-size:15px;
+    }
+    #sendBtn{
+      flex:0;
+      min-width:160px;
+      background:rgba(15,23,42,.85);
+      color:var(--txt);
+      border:1px solid rgba(148,163,184,.22);
+    }
+
+    .status{
+      margin-top:10px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    /* على الجوال نخلي اللوحة أعلى شوي */
+    @media (max-width:560px){
+      .brand h1{font-size:24px}
+      #avatarPoster{object-position:center 15%}
+      .panel{padding:12px}
+    }
   </style>
 </head>
 
 <body>
   <div class="stage">
-
-    <!-- 🔴 الصورة من IMGBB -->
-    <img
-      id="avatarPoster"
-      src="https://i.ibb.co/79tBtzg/Avatar.jpg"
-      alt="المعلم الذكي"
-    >
+    <!-- ✅ غيّر رابط الصورة هنا فقط -->
+    <img id="avatarPoster" src="https://i.ibb.co/79tBtzg/Avatar.jpg" alt="المعلم الذكي">
+    <div class="vignette"></div>
 
     <div class="brand">
       <h1>المعلم الذكي</h1>
       <p>اسألني صوتيًا أو كتابيًا</p>
     </div>
 
-    <div class="ui">
+    <div class="panelWrap">
       <div class="panel">
+        <div id="subs" class="subs">جاهز لسؤال جديد.</div>
+
         <div id="chatLog" class="chat">
           <div>👨‍🎓 الطالب: مرحبًا</div>
           <div>🤖 المعلم: أهلًا بك، اطرح سؤالك.</div>
@@ -106,19 +174,29 @@
 
         <div class="row">
           <button id="micBtn">🎙️ اضغط وتحدّث</button>
-          <button id="askBtn">✏️ اكتب سؤال</button>
+          <button id="askBtn">✏️ كتابة سؤال</button>
         </div>
 
-        <div id="status" class="status">جاهز للاستماع.</div>
+        <div id="inputRow" class="inputRow" style="display:none">
+          <input id="textInput" type="text" placeholder="اكتب سؤالك هنا..." />
+          <button id="sendBtn">إرسال</button>
+        </div>
+
+        <div id="status" class="status">افتح الصفحة على Chrome واسمح بالمايك.</div>
       </div>
     </div>
   </div>
 
 <script>
-  const micBtn = document.getElementById('micBtn');
-  const askBtn = document.getElementById('askBtn');
-  const chatLog = document.getElementById('chatLog');
+  const micBtn   = document.getElementById('micBtn');
+  const askBtn   = document.getElementById('askBtn');
+  const chatLog  = document.getElementById('chatLog');
+  const subsEl   = document.getElementById('subs');
   const statusEl = document.getElementById('status');
+
+  const inputRow = document.getElementById('inputRow');
+  const textInput= document.getElementById('textInput');
+  const sendBtn  = document.getElementById('sendBtn');
 
   function add(prefix, text){
     const d=document.createElement('div');
@@ -126,31 +204,81 @@
     chatLog.appendChild(d);
     chatLog.scrollTop=chatLog.scrollHeight;
   }
+  function setSubs(t){ subsEl.textContent = t || ''; }
 
-  askBtn.onclick=()=>{
-    const q=prompt("اكتب سؤالك:");
-    if(!q)return;
-    add("👨‍🎓 الطالب: ",q);
-    add("🤖 المعلم: ", "تم استلام السؤال (الربط مع GPT موجود عندك).");
+  // ====== كتابة احترافية (بدون prompt) ======
+  askBtn.onclick = ()=>{
+    inputRow.style.display = (inputRow.style.display === 'none') ? 'flex' : 'none';
+    if(inputRow.style.display !== 'none') textInput.focus();
   };
+  function sendText(){
+    const q = (textInput.value||'').trim();
+    if(!q) return;
+    add("👨‍🎓 الطالب: ", q);
+    // هنا لاحقًا تربطه بـ GPT
+    add("🤖 المعلم: ", "تم استلام سؤالك.");
+    textInput.value='';
+    setSubs("تم إرسال السؤال.");
+  }
+  sendBtn.onclick = sendText;
+  textInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendText(); });
 
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){
-    const rec=new SR();
-    rec.lang="ar-SA";
-    rec.onresult=e=>{
-      const t=e.results[0][0].transcript;
-      add("👨‍🎓 الطالب: ",t);
-      add("🤖 المعلم: ","تم استلام سؤالك صوتيًا.");
+  // ====== مايك احترافي Start/Stop ======
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+  let isListening = false;
+
+  if(!SR){
+    micBtn.disabled = true;
+    micBtn.style.opacity = .6;
+    statusEl.textContent = "المتصفح لا يدعم التعرف على الصوت. استخدم Chrome.";
+  } else {
+    recognition = new SR();
+    recognition.lang = 'ar-SA';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = ()=>{
+      isListening = true;
+      micBtn.classList.add('recording');
+      micBtn.textContent = "🛑 إيقاف التسجيل";
+      setSubs("تحدث الآن...");
+      statusEl.textContent = "🎙️ يستمع...";
     };
-    micBtn.onclick=()=>{
-      micBtn.classList.add("recording");
-      statusEl.textContent="🎙️ يتحدث...";
-      rec.start();
-      setTimeout(()=>{rec.stop();micBtn.classList.remove("recording");},5000);
+
+    recognition.onerror = (e)=>{
+      isListening = false;
+      micBtn.classList.remove('recording');
+      micBtn.textContent = "🎙️ اضغط وتحدّث";
+      setSubs("حصل خطأ.");
+      statusEl.textContent = "⚠️ خطأ بالمايك: " + (e.error || '');
     };
-  }else{
-    statusEl.textContent="المتصفح لا يدعم المايك.";
+
+    recognition.onend = ()=>{
+      isListening = false;
+      micBtn.classList.remove('recording');
+      micBtn.textContent = "🎙️ اضغط وتحدّث";
+      statusEl.textContent = "جاهز.";
+      // لا نغير subs هنا لو كان فيه نص
+    };
+
+    recognition.onresult = (event)=>{
+      const transcript = event.results[0][0].transcript;
+      add("👨‍🎓 الطالب: ", transcript);
+      setSubs("تم استلام سؤالك صوتيًا.");
+      // هنا لاحقًا تربطه بـ GPT
+      add("🤖 المعلم: ", "تم استلام سؤالك.");
+    };
+
+    micBtn.onclick = ()=>{
+      // لازم يكون بعد "Gesture" من المستخدم — وهذا يتحقق لأنك ضغطت زر
+      if(!isListening){
+        try { recognition.start(); }
+        catch(e){ /* أحياناً start مرتين بسرعة */ }
+      } else {
+        recognition.stop();
+      }
+    };
   }
 </script>
 
