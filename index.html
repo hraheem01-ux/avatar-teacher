@@ -70,9 +70,10 @@ video#avatarVideo{
   border:1px solid var(--line);
   backdrop-filter:blur(12px);
   border-radius:22px;
-  padding:14px;
+  padding:10px;
 }
 
+/* ✅ الدردشة (خفضنا الارتفاع 50% مرة ثانية: 60px -> 30px) */
 /* ✅ الدردشة (خفضنا الارتفاع 50% مرة ثانية: 60px -> 30px) */
 .chat{
   height:30px !important;
@@ -87,22 +88,24 @@ video#avatarVideo{
 }
 
 
-/* الأزرار */
+
+
+/* صف الأزرار */
 .row{
-  display:flex;
-  gap:12px;
-  margin-top:10px;
+  gap:8px !important;
+  margin-top:6px !important;
 }
 
+
+/* ✅ تصغير الأزرار 50% */
 button{
-  border:0;
-  cursor:pointer;
-  padding:14px;
+  padding:7px 10px !important;   /* ↓ 50% */
+  font-size:13px !important;     /* ↓ */
   border-radius:999px;
-  font-size:15px;
-  font-weight:800;
-  flex:1;
+  font-weight:700;
+  min-height:36px !important;    /* ↓ */
 }
+
 
 #micBtn{background:var(--green);color:#052e16}
 #micBtn.recording{background:var(--red);color:#fff}
@@ -290,6 +293,7 @@ if(SpeechRecognition){
 </script>
 </body>
 </html>
+
 
 
 
