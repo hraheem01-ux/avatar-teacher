@@ -17,6 +17,27 @@
   --red:#ef4444;
 }
 
+ /* =========================
+   1) إلغاء أي نص يطلع على الوجه نهائيًا
+   ========================= */
+
+/* سطر الترجمة/الرسائل اللي فوق (غالبًا هذا سبب النص الأبيض) */
+#subs,
+.subs{
+  display:none !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  height:0 !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+}
+
+/* احتياط: لو فيه عنصر حالة/نص طالع فوق الخلفية */
+#status{
+  display:none !important;   /* إذا تبيه يختفي نهائي */
+}
+ 
 *{box-sizing:border-box}
 
 body{
@@ -294,6 +315,7 @@ if(SpeechRecognition){
 </script>
 </body>
 </html>
+
 
 
 
