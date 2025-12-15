@@ -73,18 +73,19 @@ video#avatarVideo{
   padding:14px;
 }
 
-/* ✅ الدردشة (خفضنا الارتفاع 50%: 120px -> 60px) */
+/* ✅ الدردشة (خفضنا الارتفاع 50% مرة ثانية: 60px -> 30px) */
 .chat{
-  height:60px !important;
-  max-height:60px !important;
+  height:30px !important;
+  max-height:30px !important;
   overflow-y:auto;
   border-radius:14px;
   border:1px solid rgba(148,163,184,.18);
-  padding:10px;
+  padding:6px;              /* قللنا البادينق عشان ما يختنق النص */
   background:rgba(2,6,23,.35);
-  font-size:14px;
-  line-height:1.6;
+  font-size:13px;
+  line-height:1.4;
 }
+
 
 /* الأزرار */
 .row{
@@ -289,6 +290,7 @@ if(SpeechRecognition){
 </script>
 </body>
 </html>
+
 
 
 
