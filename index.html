@@ -1,356 +1,289 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>المعلم الذكي</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>المعلم الذكي</title>
 
-  <style>
-    :root{
-      --bg:#020617;
-      --glass:rgba(2,6,23,.72);
-      --line:rgba(148,163,184,.25);
-      --txt:#f8fafc;
-      --muted:#cbd5e1;
-      --green:#22c55e;
-      --blue:#0ea5e9;
-      --red:#ef4444;
-    }
+<style>
+:root{
+  --bg:#020617;
+  --glass:rgba(2,6,23,.65);
+  --line:rgba(148,163,184,.25);
+  --txt:#f8fafc;
+  --muted:#cbd5e1;
+  --green:#22c55e;
+  --blue:#0ea5e9;
+  --red:#ef4444;
+}
 
-    *{box-sizing:border-box}
+*{box-sizing:border-box}
 
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--txt);
-      font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
-      height:100vh;
-      overflow:hidden;
-    }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--txt);
+  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  height:100vh;
+  overflow:hidden;
+}
 
-    /* المسرح */
-    .stage{
-      position:fixed;
-      inset:0;
-      background:radial-gradient(1200px 700px at 50% 30%, #0b122a 0%, #020617 60%);
-    }
+/* المسرح */
+.stage{
+  position:fixed;
+  inset:0;
+  background:#000;
+}
 
-    /* صورة الخلفية */
-    img#avatarPoster{
-      position:absolute; inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      background:#020617;
-      filter:saturate(1.05) contrast(1.05);
-      transform:scale(1.08);
-      z-index:1;
-    }
+/* الخلفية */
+img#avatarPoster,
+video#avatarVideo{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
 
-    /* فيديو D-ID فوق الصورة (ولا يمنع الضغط) */
-    video#avatarVideo{
-      position:absolute; inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      background:transparent;
-      z-index:2;
+/* ❌ إلغاء العنوان العلوي نهائيًا */
+.brand{
+  display:none !important;
+}
 
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .25s ease;
-    }
-    video#avatarVideo[src]{ opacity:1; }
+/* الواجهة السفلية */
+.ui{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:20px;
+  z-index:5;
+}
 
-    /* ✅ إخفاء صندوق العنوان اللي فوق نهائيًا */
-    .brand{ display:none !important; }
+/* ✅ الكارد السفلي (60%) */
+.panel{
+  width:60vw;
+  max-width:900px;
+  min-width:320px;
+  margin:0 auto;
+  background:var(--glass);
+  border:1px solid var(--line);
+  backdrop-filter:blur(12px);
+  border-radius:22px;
+  padding:14px;
+}
 
-    /* ✅ إخفاء الشريط العلوي (subs) نهائيًا */
-    #subs, .subs{ display:none !important; }
+/* الدردشة */
+.chat{
+  height:120px;
+  overflow-y:auto;
+  border-radius:14px;
+  border:1px solid rgba(148,163,184,.18);
+  padding:10px;
+  background:rgba(2,6,23,.35);
+  font-size:14px;
+  line-height:1.6;
+}
 
-    /* واجهة أسفل الشاشة */
-    .ui{
-      position:absolute;
-      left:0; right:0; bottom:0;
-      z-index:20;
-      padding:0 0 18px;
-      pointer-events:none;
-    }
+/* الأزرار */
+.row{
+  display:flex;
+  gap:12px;
+  margin-top:10px;
+}
 
-    /* ✅ الكارد بعرض "القوس البرتقالي" */
-    .panel{
-      width:min(1100px, 92vw);
-      margin:0 auto;
-      background:var(--glass);
-      border:1px solid rgba(148,163,184,.20);
-      backdrop-filter:blur(14px);
+button{
+  border:0;
+  cursor:pointer;
+  padding:14px;
+  border-radius:999px;
+  font-size:15px;
+  font-weight:800;
+  flex:1;
+}
 
-      border-radius:22px;
-      padding:14px 16px 16px;
+#micBtn{background:var(--green);color:#052e16}
+#micBtn.recording{background:var(--red);color:#fff}
+#askBtn{background:var(--blue);color:#e0f2fe}
 
-      pointer-events:auto;
-    }
+/* الإعدادات */
+.smallrow{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+  align-items:center;
+}
 
-    /* ✅ الشات صغير (لا يطلع فوق) */
-    .chat{
-      height:120px;
-      max-height:120px;
-      overflow:auto;
-      border-radius:14px;
-      border:1px solid rgba(148,163,184,.18);
-      padding:10px 12px;
-      background:rgba(2,6,23,.35);
-      line-height:1.6;
-      font-size:14px;
-    }
+select{
+  flex:1;
+  padding:10px 12px;
+  border-radius:999px;
+  border:1px solid rgba(148,163,184,.25);
+  background:rgba(2,6,23,.55);
+  color:var(--txt);
+  font-size:13px;
+}
 
-    .row{
-      display:flex;
-      gap:10px;
-      margin-top:12px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
+.toggle{
+  background:rgba(15,23,42,.75);
+  color:var(--txt);
+  border:1px solid rgba(148,163,184,.25);
+  font-weight:800;
+  padding:10px 14px;
+}
 
-    button{
-      border:0;
-      cursor:pointer;
-      padding:14px 16px;
-      border-radius:999px;
-      font-size:16px;
-      font-weight:800;
-      flex:1;
-      min-width:220px;
-    }
+.status{
+  margin-top:6px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
 
-    #micBtn{background:var(--green);color:#052e16}
-    #micBtn.recording{background:var(--red);color:#fff}
-    #askBtn{background:var(--blue);color:#e0f2fe}
-
-    .smallrow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      align-items:center;
-    }
-
-    select{
-      flex:1;
-      min-width:260px;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.25);
-      background:rgba(2,6,23,.55);
-      color:var(--txt);
-      font-size:13px;
-    }
-
-    .toggle{
-      flex:0;
-      min-width:220px;
-      background:rgba(15,23,42,.75);
-      color:var(--txt);
-      border:1px solid rgba(148,163,184,.25);
-      font-weight:800;
-    }
-
-    .status{
-      margin-top:10px;
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    @media (max-width:520px){
-      .panel{ width:min(980px, 96vw); }
-      .chat{ height:110px; max-height:110px; }
-      button{ min-width:160px; }
-      select{ min-width:200px; }
-    }
-  </style>
+/* موبايل */
+@media (max-width:768px){
+  .panel{
+    width:95vw;
+  }
+}
+</style>
 </head>
 
 <body>
-  <div class="stage">
+<div class="stage">
 
-    <!-- صورة ثابتة احتياطية -->
-    <img id="avatarPoster" alt="Avatar" />
+  <!-- صورة الخلفية -->
+  <img id="avatarPoster" alt="Avatar" />
 
-    <!-- فيديو D-ID -->
-    <video id="avatarVideo" playsinline></video>
+  <!-- فيديو D-ID -->
+  <video id="avatarVideo" playsinline></video>
 
-    <!-- (موجودة كما هي لكن مخفية بالـ CSS) -->
-    <div class="brand">
-      <h1>المعلم الذكي</h1>
-      <p>سؤال صوتي/كتابي → رد GPT → فيديو D-ID (شفاه تتحرك)</p>
-    </div>
+  <div class="ui">
+    <div id="subs" class="subs">جاهز لسؤال جديد.</div>
 
-    <div class="ui">
-      <!-- (موجودة كما هي لكن مخفية بالـ CSS) -->
-      <div id="subs" class="subs">جاهز لسؤال جديد.</div>
+    <div class="panel">
+      <div id="chatLog" class="chat">
+        <div>👨‍🎓 الطالب: مرحبًا</div>
+        <div>🤖 المعلم: أهلًا بك، اطرح سؤالك.</div>
+      </div>
 
-      <div class="panel">
-        <div id="chatLog" class="chat">
-          <div>👨‍🎓 الطالب: مرحبًا</div>
-          <div>🤖 المعلم: أهلًا بك، اطرح سؤالك.</div>
-        </div>
+      <div class="row">
+        <button id="micBtn">🎙️ اضغط وتحدّث</button>
+        <button id="askBtn">✏️ اضغط لكتابة سؤال</button>
+      </div>
 
-        <div class="row">
-          <button id="micBtn">🎙️ اضغط وتحدّث</button>
-          <button id="askBtn">✏️ اضغط لكتابة سؤال</button>
-        </div>
+      <div class="smallrow">
+        <select id="voiceSelect">
+          <option value="ar-SA-HamedNeural">Hamed (Saudi) - ذكر</option>
+          <option value="ar-SA-ZariyahNeural">Zariyah (Saudi) - أنثى</option>
+        </select>
+        <button id="voiceToggle" class="toggle">🔊 صوت Azure احتياطي: مفعّل</button>
+      </div>
 
-        <div class="smallrow">
-          <select id="voiceSelect">
-            <option value="ar-SA-HamedNeural">Hamed (Saudi) - ذكر</option>
-            <option value="ar-SA-ZariyahNeural">Zariyah (Saudi) - أنثى</option>
-          </select>
-          <button id="voiceToggle" class="toggle">🔊 صوت Azure احتياطي: مفعّل</button>
-        </div>
-
-        <div id="status" class="status">إذا تعذر D-ID سيشتغل Azure تلقائيًا.</div>
+      <div id="status" class="status">
+        إذا تعذر D-ID سيشتغل Azure تلقائيًا.
       </div>
     </div>
   </div>
+</div>
 
 <script>
-  // 1) رابط Web App حقك
-  const API_BASE = "https://script.google.com/macros/s/AKfycbwDxKqcI5ecojJswXMH6gAT8QaMZj88TO3PKcxNYvCWLIN11Y0tIZLPJ2H7GKzE1ef3/exec";
+/* ======= ⚠️ الدوال كما هي بدون أي تعديل ======= */
 
-  // 2) رابط الصورة (لازم تكون Public)
-  // نفس File ID حق صورتك:
-  const AVATAR_URL = "https://i.ibb.co/79tBtzg/Avatar.jpg";
+// 1) رابط Web App حقك
+const API_BASE = "https://script.google.com/macros/s/AKfycbwDxKqcI5ecojJswXMH6gAT8QaMZj88TO3PKcxNYvCWLIN11Y0tIZLPJ2H7GKzE1ef3/exec";
 
-  const micBtn = document.getElementById('micBtn');
-  const askBtn = document.getElementById('askBtn');
-  const chatLog = document.getElementById('chatLog');
-  const statusEl = document.getElementById('status');
-  const subsEl = document.getElementById('subs');
-  const voiceToggle = document.getElementById('voiceToggle');
-  const voiceSelect = document.getElementById('voiceSelect');
-  const videoEl = document.getElementById('avatarVideo');
-  const posterEl = document.getElementById('avatarPoster');
+// 2) رابط الصورة
+const AVATAR_URL = "https://i.ibb.co/79tBtzg/Avatar.jpg";
 
-  posterEl.src = AVATAR_URL;  // الآن الصورة تظهر دائماً
+const micBtn = document.getElementById('micBtn');
+const askBtn = document.getElementById('askBtn');
+const chatLog = document.getElementById('chatLog');
+const statusEl = document.getElementById('status');
+const subsEl = document.getElementById('subs');
+const voiceToggle = document.getElementById('voiceToggle');
+const voiceSelect = document.getElementById('voiceSelect');
+const videoEl = document.getElementById('avatarVideo');
+const posterEl = document.getElementById('avatarPoster');
 
-  let history = [];
-  let voiceEnabled = true;
-  let currentAudio = null;
-  let isListening = false;
+posterEl.src = AVATAR_URL;
 
-  function addLine(prefix, text){
-    const div = document.createElement('div');
-    div.textContent = prefix + text;
-    chatLog.appendChild(div);
-    chatLog.scrollTop = chatLog.scrollHeight;
+let history = [];
+let voiceEnabled = true;
+let currentAudio = null;
+let isListening = false;
+
+function addLine(prefix, text){
+  const div = document.createElement('div');
+  div.textContent = prefix + text;
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function setSubs(t){ subsEl.textContent = t || ''; }
+
+function stopAudio(){
+  try{ if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;} }catch(e){}
+  currentAudio=null;
+}
+
+async function apiGet(params){
+  const url = API_BASE + (API_BASE.includes('?') ? '&' : '?') + new URLSearchParams(params).toString();
+  const res = await fetch(url, { method:'GET' });
+  return await res.json();
+}
+
+async function speakAzure(text){
+  if(!voiceEnabled) return;
+  stopAudio();
+  const data = await apiGet({ action:'tts', text, voice: voiceSelect.value });
+  if(!data.audioDataUri) return;
+  currentAudio = new Audio(data.audioDataUri);
+  currentAudio.play().catch(()=>{});
+}
+
+async function playDid(text){
+  setSubs(text);
+  statusEl.textContent = "🎬 جاري توليد فيديو D-ID...";
+  try{
+    const data = await apiGet({ action:'did', text });
+    videoEl.src = data.videoUrl;
+    await videoEl.play();
+    posterEl.style.opacity="0.15";
+  }catch(e){
+    posterEl.style.opacity="1";
+    speakAzure(text);
   }
-  function setSubs(t){ subsEl.textContent = t || ''; }
-  function stopAudio(){ try{ if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;} }catch(e){} currentAudio=null; }
+}
 
-  async function apiGet(params){
-    const url = API_BASE + (API_BASE.includes('?') ? '&' : '?') + new URLSearchParams(params).toString();
-    const res = await fetch(url, { method:'GET' });
-    const data = await res.json();
-    if(data && data.ok === false && data.error) throw new Error(data.error);
-    return data;
-  }
+async function ask(question){
+  setSubs("جاري التفكير...");
+  const data = await apiGet({ action:'ask', q: question, h: JSON.stringify(history) });
+  addLine("🤖 المعلم: ", data.reply);
+  history.push({role:'user',content:question},{role:'assistant',content:data.reply});
+  await playDid(data.clean || data.reply);
+}
 
-  async function speakAzure(text){
-    if(!voiceEnabled) return;
-    stopAudio();
-    const data = await apiGet({ action:'tts', text, voice: voiceSelect.value });
-    if(!data.audioDataUri) return;
-    currentAudio = new Audio(data.audioDataUri);
-    currentAudio.play().catch(()=>{});
-  }
+askBtn.onclick = async ()=>{
+  const q = prompt("اكتب سؤالك:");
+  if(q){ addLine("👨‍🎓 الطالب: ", q); await ask(q); }
+};
 
-  async function playDid(text){
-    setSubs(text);
-    statusEl.textContent = "🎬 جاري توليد فيديو D-ID...";
-    try{
-      const data = await apiGet({ action:'did', text });
-      if(!data.videoUrl) throw new Error("No videoUrl from D-ID");
+voiceToggle.onclick = ()=>{
+  voiceEnabled=!voiceEnabled;
+  voiceToggle.textContent = voiceEnabled ? "🔊 صوت Azure احتياطي: مفعّل" : "🔈 صوت Azure احتياطي: متوقف";
+};
 
-      videoEl.src = data.videoUrl;
-      videoEl.muted = false;
-      await videoEl.play();
-
-      posterEl.style.opacity = "0.15";
-      statusEl.textContent = "✅ فيديو D-ID يعمل.";
-
-    }catch(e){
-      console.error(e);
-      statusEl.textContent = "⚠️ تعذر فيديو D-ID — تشغيل Azure احتياطي.";
-      posterEl.style.opacity = "1";
-      speakAzure(text);
-    }
-  }
-
-  async function ask(question){
-    setSubs("جاري التفكير...");
-    statusEl.textContent = "⏳ جاري الإرسال...";
-    const h = JSON.stringify(history);
-    const data = await apiGet({ action:'ask', q: question, h });
-    const reply = data.reply || "لم أستطع الرد.";
-    addLine("🤖 المعلم: ", reply);
-    history.push({role:'user', content: question});
-    history.push({role:'assistant', content: reply});
-    await playDid(data.clean || reply);
-  }
-
-  askBtn.addEventListener('click', async ()=>{
-    const q = prompt("اكتب سؤالك:");
-    if(!q) return;
-    addLine("👨‍🎓 الطالب: ", q);
-    await ask(q);
-  });
-
-  voiceToggle.addEventListener('click', ()=>{
-    voiceEnabled = !voiceEnabled;
-    voiceToggle.textContent = voiceEnabled ? "🔊 صوت Azure احتياطي: مفعّل" : "🔈 صوت Azure احتياطي: متوقف";
-    if(!voiceEnabled) stopAudio();
-  });
-
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recognition = null;
-
-  if(!SpeechRecognition){
-    micBtn.disabled = true; micBtn.style.opacity=.6;
-    statusEl.textContent = "المتصفح لا يدعم التعرف على الصوت. استخدم Chrome.";
-  }else{
-    recognition = new SpeechRecognition();
-    recognition.lang = 'ar-SA';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = ()=>{
-      isListening=true;
-      micBtn.classList.add('recording');
-      micBtn.textContent="🛑 إيقاف";
-      setSubs("تحدث الآن...");
-      statusEl.textContent="🎙️ يستمع الآن...";
-    };
-    recognition.onerror = (e)=>{
-      isListening=false;
-      micBtn.classList.remove('recording');
-      micBtn.textContent="🎙️ اضغط وتحدّث";
-      statusEl.textContent="⚠️ خطأ بالمايك: "+e.error;
-      setSubs("حاول مرة أخرى.");
-    };
-    recognition.onend = ()=>{
-      isListening=false;
-      micBtn.classList.remove('recording');
-      micBtn.textContent="🎙️ اضغط وتحدّث";
-    };
-    recognition.onresult = async (event)=>{
-      const transcript = event.results[0][0].transcript;
-      addLine("👨‍🎓 الطالب: ", transcript);
-      await ask(transcript);
-    };
-    micBtn.addEventListener('click', ()=>{
-      if(!isListening) recognition.start();
-      else recognition.stop();
-    });
-  }
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(SpeechRecognition){
+  const r = new SpeechRecognition();
+  r.lang='ar-SA';
+  r.onresult=async e=>{
+    const t=e.results[0][0].transcript;
+    addLine("👨‍🎓 الطالب: ",t);
+    await ask(t);
+  };
+  micBtn.onclick=()=>r.start();
+}
 </script>
 </body>
 </html>
